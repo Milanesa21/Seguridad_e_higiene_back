@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from dataBase.db import users_db
+from dataBase.db import connect
 
 class User(BaseModel):
     username: str   
@@ -10,6 +10,12 @@ class User(BaseModel):
 class UserDB(User):
     password: str
 
+
+async def crear_tablas():
+    conn = await connect()
+    if conn is None:
+        return
+    
 
 
 def get_user_by_id(id):

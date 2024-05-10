@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 
 
-router = APIRouter(prefix='/', tags=["API"] , responses={404:{"mesege": "No encontrado"} })
+router = APIRouter(prefix='/home', tags=['Api'])
 
 
 

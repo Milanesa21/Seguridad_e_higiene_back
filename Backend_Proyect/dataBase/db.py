@@ -1,3 +1,5 @@
+import psycopg2 as pg2
+
 users_db = {
     "Milanesa": {
         "username": "Milanesa",
@@ -21,3 +23,20 @@ users_db = {
         "password": "T1"
     }
 }
+
+
+def connect():
+    try:
+        conn = pg2.connect(
+            host="localhost",
+            database="prueba",
+            user="postgres",
+            password="papafrita",
+            port="5432"
+        )
+        print("Conectado a la base de datos")
+        return conn
+    except Exception as e:
+        print("Error al conectar a la base de datos")
+        print(e)
+        return None
