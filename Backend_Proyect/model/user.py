@@ -1,31 +1,37 @@
 from pydantic import BaseModel
-from dataBase.db import connect
+from sqlalchemy import Boolean, Column, Integer, String
+from dataBase.db import Base
+from dataBase.db import engine
 
-class User(BaseModel):
+
+class UserBase(BaseModel):
     username: str   
-    full_name: str
     email: str
     disables: bool
 
-class UserDB(User):
+
+class UserCreate(UserBase):
     password: str
 
+class User(UserBase):
+    id: int
+    class Config:
+        orm_mode = True 
 
-async def crear_tablas():
-    conn = await connect()
-    if conn is None:
-        return
-    
+class DBUser(User):
+    password: str
+
+class Users(Base):
+    __tablename__ = "users"
+    id = Column(Integer, primary_key=True, index=True)
+    username = Column(String, unique=True, index=True)
+    email = Column(String, unique=True, index=True)
+    disabled = Column(Boolean)
+    password = Column(String)
 
 
-def get_user_by_id(id):
-    user = filter(lambda user: user.id == id,)
-    try:
-        return list(user)[0]
-    except:
-        return {"Error":"User not found"}
 
-def creatr_user(user: User):
-    if user in "users": # users es la base de datos o datos recibido por el servidor
-        return {"Error":"User already exist"}
+
+Base.metadata.create_all(engine)
+
 

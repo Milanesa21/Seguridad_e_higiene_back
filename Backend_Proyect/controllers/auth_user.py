@@ -1,4 +1,4 @@
-from model.user import User, UserDB
+from model.user import User, UserDB, Users
 from dataBase.db import users_db
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
@@ -35,3 +35,5 @@ def login(form: OAuth2PasswordRequestForm = Depends()):
 
 def read_users(user: User = Depends(get_current_user)):
     return user
+
+
