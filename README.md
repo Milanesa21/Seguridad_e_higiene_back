@@ -1,5 +1,5 @@
 ﻿# Backend del Proyecto
-![OIG4](https://github.com/Milanesa21/Seguridad_e_higiene/assets/127987458/0c519a02-78e7-421b-97dc-e7e0340b25f6){width=100px height=75px}
+![OIG4](https://github.com/Milanesa21/Seguridad_e_higiene/assets/127987458/0c519a02-78e7-421b-97dc-e7e0340b25f6){width=50px height=38px}
 
 
 1. Se nececita crear un entrorno virtual
