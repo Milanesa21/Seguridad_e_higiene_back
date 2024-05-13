@@ -35,7 +35,7 @@
     ```
 
 # Una vez inicado el entorno y las dependencias descargadas
-Se utiliza el siguiente codigo para prender el servidor
+- Se utiliza el siguiente codigo para prender el servidor
     ```
     uvicorn main:app --reload
     ```
