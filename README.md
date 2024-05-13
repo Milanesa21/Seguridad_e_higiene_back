@@ -1,5 +1,5 @@
 ﻿# Backend del Proyecto
-![OIG4 (1)](https://github.com/Milanesa21/Seguridad_e_higiene/assets/127987458/a99e1845-1792-4b23-9283-1c1de395981b)
+![OIG4 (1) (1)](https://github.com/Milanesa21/Seguridad_e_higiene/assets/127987458/a99e1845-1792-4b23-9283-1c1de395981b)
 
 
 
