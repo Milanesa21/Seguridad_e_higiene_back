@@ -1,4 +1,6 @@
 # Backend del proyecto de seguridad e higiene
+![OIG4 (1) (1)](https://github.com/Milanesa21/Seguridad_e_higiene/assets/127987458/049d4215-f74a-4ec3-a096-abd80d8308ef)
+
 1. Se nececita crear un entrorno virtual
     ```
     python -m venv venv
@@ -35,7 +37,7 @@
     ```
     pip install psycopg2
     ```
-# Una vez inicado el entorno y las dependencias descargadas
+## Una vez inicado el entorno y las dependencias descargadas
 - Se utiliza el siguiente codigo para prender el servidor
     ```
     uvicorn main:app --reload
