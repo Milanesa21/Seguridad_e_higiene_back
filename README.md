@@ -42,3 +42,8 @@
     ```
     uvicorn main:app --reload
     ```
+
+## Integrantes del grupo
+- Tomas Valdez
+- Ivan Pietkiewicz
+- Diego Jara
