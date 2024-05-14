@@ -1,8 +1,8 @@
 from sqlalchemy import create_engine
 from sqlalchemy.engine import URL
-from sqlalchemy.orm import sessionmaker, declarative_base
 from config import DB_DRIVER, DB_USERNAME, DB_PASSWORD, DB_HOST, DB_PORT, DB_NAME
 
+# Crear la URL de conexión a la base de datos usando las variables de entorno
 url = URL.create(
     drivername=DB_DRIVER,
     username=DB_USERNAME,
@@ -12,15 +12,5 @@ url = URL.create(
     database=DB_NAME
 )
 
-Base = declarative_base()
-
+# Crear el motor de SQLAlchemy
 engine = create_engine(url)
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
-
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
