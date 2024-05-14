@@ -1,10 +1,10 @@
-from controllers.auth_users import create_user, authenticate_user, get_user
+from controllers.auth_users import create_user, authenticate_user, get_user, delete_user, change_password
 from sqlalchemy.orm import Session
-from dataBase.db import engine, get_db
+from dataBase.db import get_db
 from model.user import UserCreate
 from fastapi import APIRouter, Depends, HTTPException, status
 
-user_rutes = APIRouter(prefix='/user')
+user_rutes = APIRouter(prefix='/Usuarios', tags=['Crud de Usuarios'])
 
 # Funcion que crea un usuario
 @user_rutes.post('/createUser')
@@ -31,6 +31,22 @@ async def get_user_by_username(username: str, db: Session = Depends(get_db)):
     return {"message":"Usuario encontrado","Usuario":user}
 
 
+# Ruta para eliminar un usuario
+@user_rutes.delete('/deleteUser/{username}')
+async def delete_user_route(username: str, db: Session = Depends(get_db)):
+    deleted = delete_user(username, db)
+    if not deleted:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+    return {"message": "Usuario eliminado exitosamente"}
+
+# Ruta para cambiar la contraseña de un usuario
+@user_rutes.patch('/changePassword/{username}')
+async def change_password_route(username: str, new_password: str, db: Session = Depends(get_db)):
+    changed = change_password(username, new_password, db)
+    if not changed:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+    return {"message": "Contraseña cambiada exitosamente"}
+
 
 
 
@@ -38,7 +54,7 @@ async def get_user_by_username(username: str, db: Session = Depends(get_db)):
 # async def login_user():
 #     return await login()
 
-# @user_rutes.get('/users')
+# @user_rutes.get('/users') 
 # async def get_users():
 #     return await read_users()
 

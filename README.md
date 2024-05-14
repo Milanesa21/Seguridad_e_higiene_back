@@ -30,6 +30,9 @@
     pip install "fastapi[all]"
     ```
     ```
+    pip install SQLAlchemy
+    ```
+    ```
     pip install psycopg2
     ```
 # Una vez inicado el entorno y las dependencias descargadas

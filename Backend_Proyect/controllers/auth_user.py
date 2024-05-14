@@ -1,4 +1,4 @@
-from model.user import User, UserDB, Users
+from model.user import User, UserDB
 from dataBase.db import users_db
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm

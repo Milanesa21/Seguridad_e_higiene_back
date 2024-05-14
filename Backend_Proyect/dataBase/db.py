@@ -5,7 +5,7 @@ from sqlalchemy.orm import sessionmaker,declarative_base
 url = URL.create(
     drivername="postgresql",
     username="postgres",
-    password="papafrita",
+    password="1234",
     host="localhost",
     port=5432,
     database="prueba"

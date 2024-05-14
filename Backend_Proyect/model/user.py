@@ -16,7 +16,7 @@ class UserCreate(UserBase):
 class User(UserBase):
     id: int
     class Config:
-        orm_mode = True 
+        orm_mode = True
 
 class DBUser(User):
     password: str
@@ -29,7 +29,8 @@ class Users(Base):
     disabled = Column(Boolean)
     password = Column(String)
 
-
+    def change_password(self, new_password: str):
+        self.password = new_password
 
 
 Base.metadata.create_all(engine)

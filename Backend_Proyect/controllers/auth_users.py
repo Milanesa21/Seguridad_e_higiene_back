@@ -21,3 +21,23 @@ def create_user(user: UserCreate, db: Session):
 
 def get_user(username: str, db: Session):
     return db.query(Users).filter(Users.username == username).first()
+
+def delete_user(username: str, db:Session):
+    user = db.query(Users).filter(Users.username == username).first()
+    if user:
+        db.delete(user)
+        db.commit()
+        return True
+    
+def change_password(username: str, new_password: str, db: Session):
+    user = db.query(Users).filter(Users.username == username).first()
+    if user:
+        user.password = new_password
+        db.commit()
+        db.refresh(user)
+        return True
+    elif user.password == new_password:
+        return False
+    else:
+        
+        return False
