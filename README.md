@@ -31,6 +31,10 @@
     ```
     pip install "fastapi[all]" bcrypt SQLAlchemy psycopg2 python-dotenv passlib
     ```
+    o tambien se puede hacer de la siguiente manera
+    ´´´
+    pip install -r requirements.txt
+    ```
 4. Se necesita crear un archivo .env con los siguientes datos:
      ```
    DB_DRIVER=
@@ -50,3 +54,7 @@
 - Tomas Valdez
 - Ivan Pietkiewicz
 - Diego Jara
+
+Para actualizar el requirements:
+
+pip freeze > requirements.txt

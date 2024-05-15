@@ -1,4 +1,4 @@
-from controllers.auth_users import create_user, authenticate_user, get_user, delete_user, change_password
+from controllers.auth_users import create_user, authenticate_user, get_user, delete_user, change_password, change_job_position
 from sqlalchemy.orm import Session
 from dataBase.db import get_db
 from model.user import UserCreate
@@ -46,7 +46,15 @@ async def change_password_route(full_name: str, new_password: str, db: Session =
     if not changed:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
     return {"message": "Contraseña cambiada exitosamente"}
+    
 
+# Ruta para cambiar el puesto de trabajo de un usuario
+@user_rutes.patch('/changeJobPosition/{full_name}')
+async def change_job_position_route(full_name: str, new_position: str, db: Session = Depends(get_db)):
+    changed = change_job_position(full_name, new_position, db)
+    if not changed:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+    return {"message": "Puesto de trabajo cambiado exitosamente"}
 
 
 
