@@ -29,7 +29,7 @@
     ```
 3. Se instalan las dependecian necesarias
     ```
-    pip install "fastapi[all] bcrypt SQLAlchemy psycopg2 python-dotenv"
+    pip install "fastapi[all]" bcrypt SQLAlchemy psycopg2 python-dotenv passlib
     ```
 4. Se necesita crear un archivo .env con los siguientes datos:
      ```
