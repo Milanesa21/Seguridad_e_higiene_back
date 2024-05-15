@@ -12,7 +12,7 @@ def authenticate_user(full_name: str, password: str, db: Session):
 
 def create_user(user: UserCreate, db: Session):
     hashed_password = hash_password(user.password)
-    db_user = Users(full_name=user.full_name, email=user.email, password=hashed_password)
+    db_user = Users(full_name=user.full_name, email=user.email,puesto_trabajo=user.puesto_trabajo ,password=hashed_password)
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
@@ -37,3 +37,14 @@ def change_password(full_name: str, new_password: str, db: Session):
         db.refresh(user)
         return True
     return False
+
+
+def change_job_position(full_name: str, new_position: str, db: Session):
+    user = db.query(Users).filter(Users.full_name == full_name).first()
+    if user:
+        user.puesto_trabajo = new_position
+        db.commit()
+        db.refresh(user)
+        return True
+    return False
+

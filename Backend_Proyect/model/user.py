@@ -7,6 +7,7 @@ from dataBase.db import engine
 class UserBase(BaseModel):
     full_name: str   
     email: str
+    puesto_trabajo: str
 
 
 class UserCreate(UserBase):
@@ -23,8 +24,9 @@ class DBUser(User):
 class Users(Base):
     __tablename__ = "users"
     id = Column(Integer, primary_key=True, index=True)
-    full_name = Column(String, unique=True, index=True)
+    full_name = Column(String, index=True)
     email = Column(String, unique=True, index=True)
+    puesto_trabajo = Column(String)
     password = Column(String)
 
     def change_password(self, new_password: str):
