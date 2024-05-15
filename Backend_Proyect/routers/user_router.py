@@ -23,6 +23,9 @@ async def login_user(username: str, password: str, db: Session = Depends(get_db)
     return {"message":"Inicio de sesion exitoso","Usuario":user}
     
 
+
+
+# Funcion para obtener un usuario por su username
 @user_rutes.get('/{username}')
 async def get_user_by_username(username: str, db: Session = Depends(get_db)):
     user = get_user(username, db)
