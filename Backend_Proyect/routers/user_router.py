@@ -56,26 +56,19 @@ async def change_job_position_route(full_name: str, new_position: str, db: Sessi
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
     return {"message": "Puesto de trabajo cambiado exitosamente"}
 
-@user_rutes.post('/sendMessage/{full_name}')
-async def send_message_by_console(full_name: str, message: str, db: Session = Depends(get_db)):
-    user = get_user_by_full_name(full_name, db)
-    if not user:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
-    
-    # Aquí puedes implementar la lógica para enviar el mensaje por consola
-    return [{(f"Mensaje de {full_name}: {message}")},{"message": "Mensaje enviado exitosamente"}]
 
 @user_rutes.post('/sendEmergencyMessage/{full_name}')
-async def send_emergency_message(full_name: str, puesto_trabajo: str, message: str, db: Session = Depends(get_db)):
-    user = get_user(full_name, db)
+async def send_emergency_message(full_name: str, puesto_trabajo: str, message: str = None, db: Session = Depends(get_db)):
+    user = get_user(full_name, db)  
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+    if message is None:
+        message = "¡Emergencia! Necesito asistencia."
     
     # Crear una instancia de AlertMessage y guardarla en la base de datos
     alert_message = AlertMessage(user_id = user.id, full_name = user.full_name, puesto_trabajo = user.puesto_trabajo , message = message)
     db.add(alert_message)
     db.commit()
-    
     # Aquí puedes implementar la lógica para enviar el mensaje de emergencia
     # Por ejemplo, enviar un mensaje a través de un sistema de notificación o correo electrónico
     
