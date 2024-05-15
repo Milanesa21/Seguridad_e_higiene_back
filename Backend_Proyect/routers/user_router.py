@@ -15,34 +15,34 @@ def create_users(user: UserCreate, db: Session = Depends(get_db)):
 # Funcion para iniciar sesion de un usuario
 
 @user_rutes.post('/login')
-async def login_user(username: str, password: str, db: Session = Depends(get_db)):
-    user = authenticate_user(username, password, db)
+async def login_user(full_name: str, password: str, db: Session = Depends(get_db)):
+    user = authenticate_user(full_name, password, db)
     if not user:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid credentials")
     
     return {"message":"Inicio de sesion exitoso","Usuario":user}
     
 
-@user_rutes.get('/{username}')
-async def get_user_by_username(username: str, db: Session = Depends(get_db)):
-    user = get_user(username, db)
+@user_rutes.get('/{full_name}')
+async def get_user_by_full_name(full_name: str, db: Session = Depends(get_db)):
+    user = get_user(full_name, db)
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
     return {"message":"Usuario encontrado","Usuario":user}
 
 
 # Ruta para eliminar un usuario
-@user_rutes.delete('/deleteUser/{username}')
-async def delete_user_route(username: str, db: Session = Depends(get_db)):
-    deleted = delete_user(username, db)
+@user_rutes.delete('/deleteUser/{full_name}')
+async def delete_user_route(full_name: str, db: Session = Depends(get_db)):
+    deleted = delete_user(full_name, db)
     if not deleted:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
     return {"message": "Usuario eliminado exitosamente"}
 
 # Ruta para cambiar la contraseña de un usuario
-@user_rutes.patch('/changePassword/{username}')
-async def change_password_route(username: str, new_password: str, db: Session = Depends(get_db)):
-    changed = change_password(username, new_password, db)
+@user_rutes.patch('/changePassword/{full_name}')
+async def change_password_route(full_name: str, new_password: str, db: Session = Depends(get_db)):
+    changed = change_password(full_name, new_password, db)
     if not changed:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
     return {"message": "Contraseña cambiada exitosamente"}
