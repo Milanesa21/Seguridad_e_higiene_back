@@ -1,16 +1,19 @@
 from sqlalchemy import create_engine
 from sqlalchemy.engine import URL
+from config import DB_DRIVER, DB_USERNAME, DB_PASSWORD, DB_HOST, DB_PORT, DB_NAME
 from sqlalchemy.orm import sessionmaker,declarative_base
 
+# Crear la URL de conexión a la base de datos usando las variables de entorno
 url = URL.create(
-    drivername="postgresql",
-    username="postgres",
-    password="1234",
-    host="localhost",
-    port=5432,
-    database="prueba"
+    drivername=DB_DRIVER,
+    username=DB_USERNAME,
+    password=DB_PASSWORD,
+    host=DB_HOST,
+    port=DB_PORT,
+    database=DB_NAME
 )
 
+# Crear el motor de SQLAlchemy
 Base = declarative_base()
 
 engine = create_engine(url)

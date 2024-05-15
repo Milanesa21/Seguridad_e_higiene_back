@@ -37,8 +37,25 @@
     ```
     pip install psycopg2
     ```
+    ```
+    pip install python-dotenv
+    ```
+4. Se necesita crear un archivo .env con los siguientes datos:
+     ```
+   DB_DRIVER=
+    DB_USERNAME=
+    DB_PASSWORD=
+    DB_HOST=
+    DB_PORT=
+    DB_NAME=
+    ```
 ## Una vez inicado el entorno y las dependencias descargadas
 - Se utiliza el siguiente codigo para prender el servidor
     ```
     uvicorn main:app --reload
     ```
+ 
+## Integrantes del grupo
+- Tomas Valdez
+- Ivan Pietkiewicz
+- Diego Jara
