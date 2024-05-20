@@ -51,3 +51,12 @@ def change_job_position(full_name: str, new_position: str, db: Session):
         return True
     return False
 
+def change_name(full_name: str, new_name: str, db: Session):
+    user = db.query(Users).filter(Users.full_name == full_name).first()
+    if user:
+        user.full_name = new_name
+        db.commit()
+        db.refresh(user)
+        return True
+    return False
+

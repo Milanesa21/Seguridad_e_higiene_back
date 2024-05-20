@@ -1,4 +1,4 @@
-from controllers.auth_users import create_user, authenticate_user, get_user_by_name, delete_user, change_password, change_job_position, get_user_email
+from controllers.auth_users import create_user, authenticate_user, get_user_by_name, delete_user, change_password, change_job_position, get_user_email, change_name
 from sqlalchemy.orm import Session
 from dataBase.db import get_db
 from model.user import UserCreate, AlertMessage
@@ -63,6 +63,13 @@ async def change_job_position_route(full_name: str, new_position: str, db: Sessi
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
     return {"message": "Puesto de trabajo cambiado exitosamente"}
 
+# Ruta para cambiar el nombre de un usuario
+@user_rutes.patch('/changeName/{full_name}')
+async def change_name_route(full_name: str, new_name: str, db: Session = Depends(get_db)):
+    changed = change_name(full_name, new_name, db)
+    if not changed:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+    return {"message": "El nombre de usuario fue correctamente cambiado"}
 
 @user_rutes.post('/sendEmergencyMessage/{full_name}')
 async def send_emergency_message(full_name: str, puesto_trabajo: str, message: str = None, db: Session = Depends(get_db)):
