@@ -37,7 +37,7 @@
     ```
 4. Se necesita crear un archivo .env con los siguientes datos:
      ```
-   DB_DRIVER=
+    DB_DRIVER=
     DB_USERNAME=
     DB_PASSWORD=
     DB_HOST=

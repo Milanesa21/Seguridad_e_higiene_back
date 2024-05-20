@@ -18,8 +18,11 @@ def create_user(user: UserCreate, db: Session):
     db.refresh(db_user)
     return db_user
 
-def get_user(full_name: str, db: Session):
+def get_user_by_name(full_name: str, db: Session):
     return db.query(Users).filter(Users.full_name == full_name).first()
+
+def get_user_email(email: str, db: Session):
+    return db.query(Users).filter(Users.email == email).first()
 
 def delete_user(full_name: str, db: Session):
     user = db.query(Users).filter(Users.full_name == full_name).first()
