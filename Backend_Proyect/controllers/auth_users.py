@@ -18,8 +18,11 @@ def create_user(user: UserCreate, db: Session):
     db.refresh(db_user)
     return db_user
 
-def get_user(full_name: str, db: Session):
+def get_user_by_name(full_name: str, db: Session):
     return db.query(Users).filter(Users.full_name == full_name).first()
+
+def get_user_email(email: str, db: Session):
+    return db.query(Users).filter(Users.email == email).first()
 
 def delete_user(full_name: str, db: Session):
     user = db.query(Users).filter(Users.full_name == full_name).first()
@@ -43,6 +46,15 @@ def change_job_position(full_name: str, new_position: str, db: Session):
     user = db.query(Users).filter(Users.full_name == full_name).first()
     if user:
         user.puesto_trabajo = new_position
+        db.commit()
+        db.refresh(user)
+        return True
+    return False
+
+def change_name(full_name: str, new_name: str, db: Session):
+    user = db.query(Users).filter(Users.full_name == full_name).first()
+    if user:
+        user.full_name = new_name
         db.commit()
         db.refresh(user)
         return True
