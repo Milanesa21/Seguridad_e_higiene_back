@@ -14,7 +14,7 @@ def create_user(user: UserCreate, db: Session):
     hashed_password = hash_password(user.password)
     db_user = Users(full_name=user.full_name, email=user.email,puesto_trabajo=user.puesto_trabajo ,password=hashed_password)
     db.add(db_user)
-    db.commit()
+    db.commit() 
     db.refresh(db_user)
     return db_user
 

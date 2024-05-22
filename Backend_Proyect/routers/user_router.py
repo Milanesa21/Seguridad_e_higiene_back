@@ -3,6 +3,15 @@ from sqlalchemy.orm import Session
 from dataBase.db import get_db
 from model.user import UserCreate, AlertMessage
 from fastapi import APIRouter, Depends, HTTPException, status
+from pydantic import BaseModel
+
+
+class LoginRequest(BaseModel):
+    full_name: str
+    password: str
+
+
+
 
 user_rutes = APIRouter(prefix='/Usuarios', tags=['Crud de Usuarios'])
 
@@ -13,14 +22,15 @@ async def create_users(user: UserCreate, db: Session = Depends(get_db)):
     return db_user
 
 # Funcion para iniciar sesion de un usuario
-
 @user_rutes.post('/login')
-async def login_user(full_name: str, password: str, db: Session = Depends(get_db)):
+async def login_user(login_request: LoginRequest, db: Session = Depends(get_db)):
+    full_name = login_request.full_name
+    password = login_request.password
     user = authenticate_user(full_name, password, db)
     if not user:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid credentials")
     
-    return {"message":"Inicio de sesion exitoso","Usuario":user}
+    return {"message": "Inicio de sesión exitoso", "Usuario": user}
     
 
 @user_rutes.get('/{full_name}')
