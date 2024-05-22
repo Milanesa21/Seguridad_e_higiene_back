@@ -14,12 +14,11 @@ origins = [
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=["*"],  # Permitir solicitudes desde cualquier origen
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["POST"],  # Permitir solo el método POST
     allow_headers=["*"],
 )
-
 app.include_router(user_rutes)
 
 if __name__ == "__main__":
