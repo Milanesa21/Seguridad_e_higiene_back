@@ -32,7 +32,7 @@ class Company(Base):
     password = Column(String)
 
     # Relación uno a muchos con usuarios (empleados)
-    employees = relationship("User", back_populates="company")
+    employees = relationship("Users", back_populates="company")
 
 class Users(Base):
     __tablename__ = "users"
