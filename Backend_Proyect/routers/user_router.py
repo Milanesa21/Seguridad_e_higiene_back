@@ -19,7 +19,7 @@ class LoginRequest(BaseModel):
 
 
 user_rutes = APIRouter(prefix='/Usuarios', tags=['Crud de Usuarios'])
-
+# Texto de ejemplo
 #Ruta para crear usuarios
 @user_rutes.post('/createUsers')
 async def create_users(request: CreateUsersRequest, db: Session = Depends(get_db)):
