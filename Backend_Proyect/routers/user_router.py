@@ -1,4 +1,5 @@
 from controllers.auth_users import create_user, authenticate_user, get_user_by_name, delete_user, change_password, change_job_position, get_user_email, change_name
+from service.email_service import send_email
 from sqlalchemy.orm import Session
 from dataBase.db import get_db
 from model.user import UserCreate, AlertMessage
@@ -48,6 +49,14 @@ async def delete_user_route(full_name: str, db: Session = Depends(get_db)):
     if not deleted:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
     return {"message": "Usuario eliminado exitosamente"}
+
+#eviar correo para cambiar contraseña
+@user_rutes.post('/sendEmail/{full_name}')
+async def send_email_route(full_name: str, db: Session = Depends(get_db)):
+    user = get_user_by_name(full_name, db)
+    if not user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+    send_email(full_name, user.email)
 
 # Ruta para cambiar la contraseña de un usuario
 @user_rutes.patch('/changePassword/{full_name}')
