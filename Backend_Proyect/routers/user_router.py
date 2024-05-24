@@ -20,6 +20,7 @@ class LoginRequest(BaseModel):
 
 user_rutes = APIRouter(prefix='/Usuarios', tags=['Crud de Usuarios'])
 # Texto de ejemplo
+
 #Ruta para crear usuarios
 @user_rutes.post('/createUsers')
 async def create_users(request: CreateUsersRequest, db: Session = Depends(get_db)):
@@ -56,7 +57,7 @@ async def login_user(login_request: LoginRequest, db: Session = Depends(get_db))
     
     return {"message": "Inicio de sesión exitoso", "Usuario": user}
     
-
+# Ruta para obtener un usuario por su nombre
 @user_rutes.get('/{full_name}')
 async def get_user_by_full_name(full_name: str, db: Session = Depends(get_db)):
     user = get_user_by_name(full_name, db)
@@ -64,7 +65,7 @@ async def get_user_by_full_name(full_name: str, db: Session = Depends(get_db)):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
     return {"message":"Usuario encontrado","Usuario":user}
 
-
+#Ruta para obtener un usuario por su email
 @user_rutes.get('/email/{email}')
 async def get_user__by_email(email: str, db: Session = Depends(get_db)):
     emaill = get_user_email(email, db)
@@ -74,16 +75,16 @@ async def get_user__by_email(email: str, db: Session = Depends(get_db)):
 
 # Ruta para eliminar un usuario
 @user_rutes.delete('/deleteUser/{full_name}')
-async def delete_user_route(full_name: str, db: Session = Depends(get_db)):
-    deleted = delete_user(full_name, db)
+async def delete_user_route(full_name: str,email: str, puesto_trabajo: str, db: Session = Depends(get_db)):
+    deleted = delete_user(full_name,email, puesto_trabajo, db)
     if not deleted:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
     return {"message": "Usuario eliminado exitosamente"}
 
 # Ruta para cambiar la contraseña de un usuario
 @user_rutes.patch('/changePassword/{full_name}')
-async def change_password_route(full_name: str, new_password: str, db: Session = Depends(get_db)):
-    changed = change_password(full_name, new_password, db)
+async def change_password_route(full_name: str,email: str, new_password: str, db: Session = Depends(get_db)):
+    changed = change_password(full_name, email, new_password, db)
     if not changed:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
     return {"message": "Contraseña cambiada exitosamente"}
@@ -91,8 +92,8 @@ async def change_password_route(full_name: str, new_password: str, db: Session =
 
 # Ruta para cambiar el puesto de trabajo de un usuario
 @user_rutes.patch('/changeJobPosition/{full_name}')
-async def change_job_position_route(full_name: str, new_position: str, db: Session = Depends(get_db)):
-    changed = change_job_position(full_name, new_position, db)
+async def change_job_position_route(full_name: str, email: str, new_position: str, db: Session = Depends(get_db)):
+    changed = change_job_position(full_name, email, new_position, db)
     if not changed:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
     return {"message": "Puesto de trabajo cambiado exitosamente"}
@@ -105,6 +106,8 @@ async def change_name_route(full_name: str, new_name: str, db: Session = Depends
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
     return {"message": "El nombre de usuario fue correctamente cambiado"}
 
+
+#Ruta para enviar un mensaje de emergencia
 @user_rutes.post('/sendEmergencyMessage/{full_name}')
 async def send_emergency_message(full_name: str, puesto_trabajo: str, message: str = None, db: Session = Depends(get_db)):
     user = get_user_by_name(full_name, db)  
@@ -117,8 +120,6 @@ async def send_emergency_message(full_name: str, puesto_trabajo: str, message: s
     alert_message = AlertMessage(user_id = user.id, full_name = user.full_name, puesto_trabajo = user.puesto_trabajo , message = message)
     db.add(alert_message)
     db.commit()
-    # Aquí puedes implementar la lógica para enviar el mensaje de emergencia
-    # Por ejemplo, enviar un mensaje a través de un sistema de notificación o correo electrónico
     
     # En este ejemplo, simplemente devolvemos un mensaje de confirmación
     return {"message": f"¡Emergencia! {full_name} en el puesto de trabajo {puesto_trabajo} necesita asistencia: {message}"}
