@@ -2,9 +2,11 @@ from controllers.auth_users import create_user, authenticate_user, get_user_by_n
 from sqlalchemy.orm import Session
 from dataBase.db import get_db
 from model.user import UserCreate, AlertMessage
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, FastAPI
 from pydantic import BaseModel
 import random
+from services.Jorgito import app as jorgito_app  # Importa la aplicación de Jorgito
+
 
 class CreateUsersRequest(BaseModel):
     puesto_trabajo: str
@@ -16,12 +18,9 @@ class LoginRequest(BaseModel):
     password: str
 
 
-
-
 user_rutes = APIRouter(prefix='/Usuarios', tags=['Crud de Usuarios'])
-# Texto de ejemplo
 
-#Ruta para crear usuarios
+# Ruta para crear usuarios
 @user_rutes.post('/createUsers')
 async def create_users(request: CreateUsersRequest, db: Session = Depends(get_db)):
     users = []
@@ -33,7 +32,6 @@ async def create_users(request: CreateUsersRequest, db: Session = Depends(get_db
             "email": email,
             "password": password,
             "puesto_trabajo": request.puesto_trabajo
-            
         }
         try:
             db_user = create_user(UserCreate(**user_data), db)
@@ -123,3 +121,8 @@ async def send_emergency_message(full_name: str, puesto_trabajo: str, message: s
     
     # En este ejemplo, simplemente devolvemos un mensaje de confirmación
     return {"message": f"¡Emergencia! {full_name} en el puesto de trabajo {puesto_trabajo} necesita asistencia: {message}"}
+
+# Incluir las rutas de Jorgito en el router principal
+main_app = FastAPI()
+main_app.include_router(user_rutes)  # Incluir las rutas de usuario
+main_app.mount("/Jorgito", jorgito_app)  # Montar la aplicación de Jorgito

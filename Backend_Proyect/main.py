@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from routers.user_router import user_rutes
 from fastapi.middleware.cors import CORSMiddleware
+from services.Jorgito import app as jorgito_app  # Importa la aplicación de Jorgito
 
 # Para correr el servidor se debe ejecutar el siguiente comando en la terminal
 # uvicorn main:app --reload
@@ -16,10 +17,15 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],  # Permitir solicitudes desde cualquier origen
     allow_credentials=True,
-    allow_methods=["POST"],  # Permitir solo el método POST
+    allow_methods=["*"],  # Permitir todos los métodos
     allow_headers=["*"],
 )
+
+# Incluir las rutas de usuario
 app.include_router(user_rutes)
+
+# Montar la aplicación de Jorgito
+app.mount("/jorgito", jorgito_app)  # Asegúrate de que la ruta está en minúsculas
 
 if __name__ == "__main__":
     import uvicorn
