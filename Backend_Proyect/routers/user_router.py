@@ -2,19 +2,9 @@ from controllers.auth_users import create_user, authenticate_user, get_user_by_n
 from service.email_service import send_email
 from sqlalchemy.orm import Session
 from dataBase.db import get_db
-from model.user import UserCreate, AlertMessage
+from model.user import UserCreate, AlertMessage, CreateUsersRequest, LoginRequest
 from fastapi import APIRouter, Depends, HTTPException, status
-from pydantic import BaseModel
 import random
-
-class CreateUsersRequest(BaseModel):
-    puesto_trabajo: str
-    num_usuarios: int
-
-
-class LoginRequest(BaseModel):
-    full_name: str
-    password: str
 
 
 

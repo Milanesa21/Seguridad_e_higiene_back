@@ -9,6 +9,15 @@ class UserBase(BaseModel):
     email: str
     puesto_trabajo: str
 
+class CreateUsersRequest(BaseModel):
+    puesto_trabajo: str
+    num_usuarios: int
+
+
+class LoginRequest(BaseModel):
+    full_name: str
+    password: str
+
 class UserCreate(UserBase):
     password: str
 

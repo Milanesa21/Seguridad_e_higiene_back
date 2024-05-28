@@ -7,8 +7,6 @@ from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
 
-<<<<<<< HEAD
-=======
 origins = [
     "http://localhost:5173",  # Reemplaza con la URL de tu aplicación React sin la barra al final
     "http://127.0.0.1:8000",  # Asegúrate de que el puerto es el correcto
@@ -21,7 +19,6 @@ app.add_middleware(
     allow_methods=["POST"],  # Permitir solo el método POST
     allow_headers=["*"],
 )
->>>>>>> e306f23f817b4c7d2fdaa1d03982fb48c854df03
 app.include_router(user_rutes)
 
 if __name__ == "__main__":
