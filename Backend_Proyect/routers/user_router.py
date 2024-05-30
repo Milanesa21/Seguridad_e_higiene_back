@@ -1,10 +1,10 @@
 from controllers.auth_users import create_user, authenticate_user, get_user_by_name, delete_user, change_password, change_job_position, get_user_email, change_name
 from services.email_service import send_email
-from services.jwt import write_token, validate_token
+from services.jwt import write_token
 from sqlalchemy.orm import Session
 from dataBase.db import get_db
 from model.user import UserCreate, AlertMessage, CreateUsersRequest, LoginRequest
-from fastapi import APIRouter, Depends, HTTPException, status, FastAPI, Header
+from fastapi import APIRouter, Depends, HTTPException, status, FastAPI
 import random
 from services.Jorgito import app as jorgito_app  # Importa la aplicación de Jorgito
 
@@ -54,18 +54,7 @@ async def login_user(login_request: LoginRequest, db: Session = Depends(get_db))
 
     # Generar un token JWT y devolverlo en la respuesta
     token = write_token(user_data)
-    return token
     return {"message": "Inicio de sesión exitoso", "Usuario": token}
-
-@user_rutes.post('/validate/token')
-async def validate_token_route(Authorization: str = Header(None)):
-    token = Authorization.split(" ")[1]
-    if not token:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Token not found")
-    Authorization_response = validate_token(token, output=True)
-    if Authorization_response == None:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid token")
-    return {"message": "Token valido", "Usuario": Authorization_response}
 
 
 # Ruta para obtener un usuario por su nombre

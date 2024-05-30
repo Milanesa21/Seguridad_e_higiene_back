@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from routers.user_router import user_rutes
+from routers.auth_router import auth_router
 from fastapi.middleware.cors import CORSMiddleware
 from services.Jorgito import app as jorgito_app  # Importa la aplicación de Jorgito
 
@@ -23,6 +24,7 @@ app.add_middleware(
 
 # Incluir las rutas de usuario
 app.include_router(user_rutes)
+app.include_router(auth_router)
 
 # Montar la aplicación de Jorgito
 app.mount("/jorgito", jorgito_app)  # Asegúrate de que la ruta está en minúsculas
