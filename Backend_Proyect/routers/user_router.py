@@ -60,7 +60,6 @@ async def login_user(login_request: LoginRequest, db: Session = Depends(get_db))
 @user_rutes.post('/validate/token')
 async def validate_token_route(Authorization: str = Header(None)):
     token = Authorization.split(" ")[1]
-    print(token)
     if not token:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Token not found")
     Authorization_response = validate_token(token, output=True)
