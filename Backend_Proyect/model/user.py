@@ -1,22 +1,22 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field, EmailStr
 from sqlalchemy import Column, Integer, String, ForeignKey
 from sqlalchemy.orm import relationship
 from dataBase.db import Base
 from dataBase.db import engine
 
 class UserBase(BaseModel):
-    full_name: str   
-    email: str
-    puesto_trabajo: str
+    full_name: str = Field(min_length=4,max_length=30)
+    email: EmailStr
+    puesto_trabajo: str = Field(min_length=3,max_length=100)
 
 class CreateUsersRequest(BaseModel):
-    puesto_trabajo: str
-    num_usuarios: int
+    puesto_trabajo: str = Field(min_length=3,max_length=100)
+    num_usuarios: int = Field(ge=1)
 
 
 class LoginRequest(BaseModel):
-    full_name: str
-    password: str
+    full_name: str = Field(min_length=4,max_length=30)
+    password: str 
 
 class UserCreate(UserBase):
     password: str
