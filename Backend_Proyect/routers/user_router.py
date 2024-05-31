@@ -1,21 +1,13 @@
 from controllers.auth_users import create_user, authenticate_user, get_user_by_name, delete_user, change_password, change_job_position, get_user_email, change_name
+from services.email_service import send_email
+from services.jwt import write_token
 from sqlalchemy.orm import Session
 from dataBase.db import get_db
-from model.user import UserCreate, AlertMessage
+from model.user import UserCreate, AlertMessage, CreateUsersRequest, LoginRequest
 from fastapi import APIRouter, Depends, HTTPException, status, FastAPI
-from pydantic import BaseModel
 import random
 from services.Jorgito import app as jorgito_app  # Importa la aplicación de Jorgito
 
-
-class CreateUsersRequest(BaseModel):
-    puesto_trabajo: str
-    num_usuarios: int
-
-
-class LoginRequest(BaseModel):
-    full_name: str
-    password: str
 
 
 user_rutes = APIRouter(prefix='/Usuarios', tags=['Crud de Usuarios'])
@@ -53,8 +45,18 @@ async def login_user(login_request: LoginRequest, db: Session = Depends(get_db))
     if not user:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid credentials")
     
-    return {"message": "Inicio de sesión exitoso", "Usuario": user}
-    
+    user_data = {
+        "id": user.id,
+        "full_name": user.full_name,
+        "email": user.email,
+        "puesto_trabajo": user.puesto_trabajo
+    }
+
+    # Generar un token JWT y devolverlo en la respuesta
+    token = write_token(user_data)
+    return token
+
+
 # Ruta para obtener un usuario por su nombre
 @user_rutes.get('/{full_name}')
 async def get_user_by_full_name(full_name: str, db: Session = Depends(get_db)):
@@ -78,6 +80,14 @@ async def delete_user_route(full_name: str,email: str, puesto_trabajo: str, db: 
     if not deleted:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
     return {"message": "Usuario eliminado exitosamente"}
+
+#eviar correo para cambiar contraseña
+@user_rutes.post('/sendEmail/{full_name}')
+async def send_email_route(full_name: str, db: Session = Depends(get_db)):
+    user = get_user_by_name(full_name, db)
+    if not user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+    send_email(full_name, user.email)
 
 # Ruta para cambiar la contraseña de un usuario
 @user_rutes.patch('/changePassword/{full_name}')
