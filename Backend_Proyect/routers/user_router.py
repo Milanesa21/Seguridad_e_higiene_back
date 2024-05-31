@@ -46,10 +46,7 @@ async def login_user(login_request: LoginRequest, db: Session = Depends(get_db))
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid credentials")
     
     user_data = {
-        "id": user.id,
-        "full_name": user.full_name,
-        "email": user.email,
-        "puesto_trabajo": user.puesto_trabajo
+        "id": user.id
     }
 
     # Generar un token JWT y devolverlo en la respuesta
