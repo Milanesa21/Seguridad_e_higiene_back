@@ -3,7 +3,8 @@ from services.email_service import send_email
 from services.jwt import write_token
 from sqlalchemy.orm import Session
 from dataBase.db import get_db
-from model.user import UserCreate, AlertMessage, CreateUsersRequest, LoginRequest
+from model.user import UserCreate, CreateUsersRequest, LoginRequest
+from model.alert_message import AlertMessage
 from fastapi import APIRouter, Depends, HTTPException, status, FastAPI
 import random
 from services.Jorgito import app as jorgito_app  # Importa la aplicación de Jorgito

@@ -30,18 +30,6 @@ class User(UserBase):
 class DBUser(User):
     password: str
 
-class Company(Base):
-    __tablename__ = "companies"
-
-    id_empresa = Column(Integer, primary_key=True, index=True)
-    nombre_empresa = Column(String, index=True)
-    nombre_jefe = Column(String)
-    correo_jefe = Column(String, unique=True, index=True)
-    numero_jefe = Column(String)
-    password = Column(String)
-
-    # Relación uno a muchos con usuarios (empleados)
-    employees = relationship("Users", back_populates="company")
 
 class Users(Base):
     __tablename__ = "users"
@@ -61,17 +49,3 @@ class Users(Base):
 
     def change_password(self, new_password: str):
         self.password = new_password
-
-class AlertMessage(Base):
-    __tablename__ = "alert_messages"
-
-    id_message = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey('users.id'))
-    full_name = Column(String) 
-    puesto_trabajo = Column(String)
-    message = Column(String)
-    
-    # Relación con la tabla de usuarios
-    user = relationship("Users", back_populates="alert_messages")
-
-Base.metadata.create_all(engine)
