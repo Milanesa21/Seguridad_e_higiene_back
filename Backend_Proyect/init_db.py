@@ -1,4 +1,3 @@
-# init_db.py
 from dataBase.db import engine, Base
 from model.user import Users
 from model.empresa import Company
