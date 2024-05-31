@@ -7,6 +7,7 @@ from model.user import UserCreate, AlertMessage, CreateUsersRequest, LoginReques
 from fastapi import APIRouter, Depends, HTTPException, status, FastAPI
 import random
 from services.Jorgito import app as jorgito_app  # Importa la aplicación de Jorgito
+from services.middleware_verification import get_user_info_by_name
 
 
 
@@ -121,22 +122,33 @@ async def change_name_route(full_name: str, new_name: str, db: Session = Depends
     return {"message": "El nombre de usuario fue correctamente cambiado"}
 
 
-#Ruta para enviar un mensaje de emergencia o una denuncia
+ # Ruta para enviar un mensaje de emergencia o una denuncia
 @user_rutes.post('/sendMessage')
-async def send_message(full_name: str, puesto_trabajo: str, message: str = None, db: Session = Depends(get_db)):
-    user = get_user_by_name(full_name, db)  
-    if not user:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+async def send_message(
+    full_name: str,
+    user_id: int,
+    message: str = None,
+    user_info: dict = Depends(get_user_info_by_name),
+    db: Session = Depends(get_db)
+):
+    user_id = user_info["id"]
+    full_name = user_info["full_name"]
+    puesto_trabajo = user_info["puesto_trabajo"]
+    
     if message is None:
         message = "¡Emergencia! Necesito asistencia."
     
     # Crear una instancia de AlertMessage y guardarla en la base de datos
-    alert_message = AlertMessage(user_id=user.id, full_name=user.full_name, puesto_trabajo=user.puesto_trabajo, message=message)
+    alert_message = AlertMessage(user_id=user_id, full_name=full_name, puesto_trabajo=puesto_trabajo, message=message)
     db.add(alert_message)
     db.commit()
     
     # En este ejemplo, simplemente devolvemos un mensaje de confirmación
     return {"message": f"Mensaje enviado a {full_name} en el puesto de trabajo {puesto_trabajo}: {message}"}
+
+
+
+
 
 # Incluir las rutas de Jorgito en el router principal
 main_app = FastAPI()
