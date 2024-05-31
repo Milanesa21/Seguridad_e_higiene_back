@@ -1,6 +1,6 @@
-from controllers.auth_users import create_user, authenticate_user, get_user_by_name, delete_user, change_password, change_job_position, get_user_email, change_name
-from services.email_service import send_email
+from controllers.auth_users import create_user, authenticate_user, get_all_user_by_name, delete_user, change_password, change_job_position, get_user_email, change_name, get_user_by_id, get_user_by_name
 from services.jwt import write_token
+from services.email_service import send_email
 from sqlalchemy.orm import Session
 from dataBase.db import get_db
 from model.user import UserCreate, AlertMessage, CreateUsersRequest, LoginRequest
@@ -46,7 +46,7 @@ async def login_user(login_request: LoginRequest, db: Session = Depends(get_db))
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid credentials")
     
     user_data = {
-        "id": user.id
+        "id": user.id,
     }
 
     # Generar un token JWT y devolverlo en la respuesta
@@ -54,13 +54,22 @@ async def login_user(login_request: LoginRequest, db: Session = Depends(get_db))
     return token
 
 
-# Ruta para obtener un usuario por su nombre
-@user_rutes.get('/{full_name}')
-async def get_user_by_full_name(full_name: str, db: Session = Depends(get_db)):
-    user = get_user_by_name(full_name, db)
+# Ruta para obtener un usuario por su id
+@user_rutes.get('/{id}')
+async def get_user_id(id: int, db: Session = Depends(get_db)):
+    user = get_user_by_id(id, db)
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
     return {"message":"Usuario encontrado","Usuario":user}
+
+
+@user_rutes.get('/{full_name}')
+async def get_user_by_full_name(full_name: str, db: Session = Depends(get_db)):
+    user = get_all_user_by_name(full_name, db)
+    if not user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+    return {"message":"Usuario encontrado","Usuario":user}
+
 
 #Ruta para obtener un usuario por su email
 @user_rutes.get('/email/{email}')
