@@ -1,7 +1,7 @@
 from fastapi import Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from dataBase.db import get_db
-from controllers.auth_users import get_user_by_name, get_user_by_id
+from controllers.auth_users import get_user_by_id
 
 
 
@@ -13,5 +13,6 @@ def get_user_info_by_name(full_name: str, user_id: int, db: Session = Depends(ge
     return {
         "id": user_by_id.id,
         "full_name": user_by_id.full_name,
-        "puesto_trabajo": user_by_id.puesto_trabajo
+        "puesto_trabajo": user_by_id.puesto_trabajo,
+        "email": user_by_id.email
     }
