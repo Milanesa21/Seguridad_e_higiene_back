@@ -17,9 +17,10 @@ def write_token(data: dict):
 def validate_token(token: str, output: bool = False):
     try:
         if output:
-            return decode(token, getenv('SECRET_KEY'), algorithms=['HS256'])
-        decode(token, getenv('SECRET_KEY'), algorithms=['HS256'])
+            token_response = decode(token, getenv('SECRET_KEY'), algorithms=['HS256'])
+            print('la variable',token_response)
+            return token_response
     except exceptions.DecodeError:
-        return JSONResponse(content={'message': 'Invalid token'}, status_code=401)
+        return {'message': 'Invalid token', 'status_code': 401}
     except exceptions.ExpiredSignatureError:
-        return JSONResponse(content={'message': 'Expired token'}, status_code=401)
+        return {'message': 'Expired token', 'status_code': 401}
