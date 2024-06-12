@@ -1,6 +1,6 @@
-from controllers.auth_users import create_user, authenticate_user, get_user_by_name, delete_user, change_password, change_job_position, get_user_email, change_name
-from services.email_service import send_email
+from controllers.auth_users import create_user, authenticate_user, get_all_user_by_name, delete_user, change_password, change_job_position, get_user_email, change_name, get_user_by_id, get_user_by_name
 from services.jwt import write_token
+from services.email_service import send_email
 from sqlalchemy.orm import Session
 from dataBase.db import get_db
 from model.user import UserCreate, CreateUsersRequest, LoginRequest
@@ -8,6 +8,7 @@ from model.alert_message import AlertMessage
 from fastapi import APIRouter, Depends, HTTPException, status, FastAPI
 import random
 from services.Jorgito import app as jorgito_app  # Importa la aplicación de Jorgito
+from services.middleware_verification import get_user_info_by_name
 
 
 
@@ -47,7 +48,7 @@ async def login_user(login_request: LoginRequest, db: Session = Depends(get_db))
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid credentials")
     
     user_data = {
-        "id": user.id
+        "id": user.id,
     }
 
     # Generar un token JWT y devolverlo en la respuesta
@@ -55,13 +56,22 @@ async def login_user(login_request: LoginRequest, db: Session = Depends(get_db))
     return token
 
 
-# Ruta para obtener un usuario por su nombre
-@user_rutes.get('/{full_name}')
-async def get_user_by_full_name(full_name: str, db: Session = Depends(get_db)):
-    user = get_user_by_name(full_name, db)
+# Ruta para obtener un usuario por su id
+@user_rutes.get('/{id}')
+async def get_user_id(id: int, db: Session = Depends(get_db)):
+    user = get_user_by_id(id, db)
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
     return {"message":"Usuario encontrado","Usuario":user}
+
+
+@user_rutes.get('/{full_name}')
+async def get_user_by_full_name(full_name: str, db: Session = Depends(get_db)):
+    user = get_all_user_by_name(full_name, db)
+    if not user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+    return {"message":"Usuario encontrado","Usuario":user}
+
 
 #Ruta para obtener un usuario por su email
 @user_rutes.get('/email/{email}')
@@ -113,22 +123,33 @@ async def change_name_route(full_name: str, new_name: str, db: Session = Depends
     return {"message": "El nombre de usuario fue correctamente cambiado"}
 
 
-#Ruta para enviar un mensaje de emergencia
-@user_rutes.post('/sendEmergencyMessage/{full_name}')
-async def send_emergency_message(full_name: str, puesto_trabajo: str, message: str = None, db: Session = Depends(get_db)):
-    user = get_user_by_name(full_name, db)  
-    if not user:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+ # Ruta para enviar un mensaje de emergencia o una denuncia
+@user_rutes.post('/sendMessage')
+async def send_message(
+    full_name: str,
+    user_id: int,
+    message: str = None,
+    user_info: dict = Depends(get_user_info_by_name),
+    db: Session = Depends(get_db)
+):
+    user_id = user_info["id"]
+    full_name = user_info["full_name"]
+    puesto_trabajo = user_info["puesto_trabajo"]
+    
     if message is None:
         message = "¡Emergencia! Necesito asistencia."
     
     # Crear una instancia de AlertMessage y guardarla en la base de datos
-    alert_message = AlertMessage(user_id = user.id, full_name = user.full_name, puesto_trabajo = user.puesto_trabajo , message = message)
+    alert_message = AlertMessage(user_id=user_id, full_name=full_name, puesto_trabajo=puesto_trabajo, message=message)
     db.add(alert_message)
     db.commit()
     
     # En este ejemplo, simplemente devolvemos un mensaje de confirmación
-    return {"message": f"¡Emergencia! {full_name} en el puesto de trabajo {puesto_trabajo} necesita asistencia: {message}"}
+    return {"message": f"Mensaje enviado a {full_name} en el puesto de trabajo {puesto_trabajo}: {message}"}
+
+
+
+
 
 # Incluir las rutas de Jorgito en el router principal
 main_app = FastAPI()

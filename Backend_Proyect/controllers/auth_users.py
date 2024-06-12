@@ -18,13 +18,19 @@ def create_user(user: UserCreate, db: Session):
     db.refresh(db_user)
     return db_user
 
+def get_user_by_id(id: int, db: Session):
+    return db.query(Users).filter(Users.id == id).first()
+
+def get_all_user_by_name(full_name: str, db: Session):
+    return db.query(Users).filter(Users.full_name == full_name).all()
+
 def get_user_by_name(full_name: str, db: Session):
     return db.query(Users).filter(Users.full_name == full_name).first()
 
 def get_user_email(email: str, db: Session):
     return db.query(Users).filter(Users.email == email).first()
 
-def delete_user(full_name: str, email: str, puesto_trabajo: str, db: Session):
+def delete_user(full_name:str, email: str, puesto_trabajo: str, db: Session):
     user = db.query(Users).filter(Users.full_name == full_name, Users.email == email, Users.puesto_trabajo == puesto_trabajo).first()
     if user:
         db.delete(user)
@@ -33,7 +39,7 @@ def delete_user(full_name: str, email: str, puesto_trabajo: str, db: Session):
     return False
 
 def change_password(full_name: str, email: str, new_password: str, db: Session):
-    user = db.query(Users).filter(Users.full_name == full_name).first()
+    user = db.query(Users).filter(Users.full_name == full_name, Users.email == email).first()
     if user:
         user.password = hash_password(new_password)
         db.commit()
