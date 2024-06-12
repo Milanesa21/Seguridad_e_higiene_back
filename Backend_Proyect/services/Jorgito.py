@@ -1,8 +1,7 @@
-from fastapi import FastAPI, HTTPException, Response
+from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from fastapi.responses import StreamingResponse
 import subprocess
-import time
 from typing import List
 
 class Query(BaseModel):
@@ -19,41 +18,30 @@ initial_prompt = (
     "trata de no ser redundante y de ser lo más claro posible."
 )
 
-# Función para ejecutar el modelo
-def run_model(full_prompt):
-    process = subprocess.Popen('ollama run llama3', 
-                               stdin=subprocess.PIPE, 
-                               stdout=subprocess.PIPE, 
-                               stderr=subprocess.PIPE,
-                               shell=True,
-                               bufsize=1,
-                               universal_newlines=True)
-    
-    stdout, stderr = process.communicate(input=full_prompt.encode())
-
-    if process.returncode != 0:
-        raise HTTPException(status_code=500, detail=f"Error: {stderr.decode()}")
-
-    return stdout
+# Variable para verificar si ya se ha enviado el initial_prompt
+initial_prompt_sent = False
 
 # Generador para transmitir respuestas parciales
 def model_output_generator(full_prompt):
-    process = subprocess.Popen('ollama run llama3', 
-                               stdin=subprocess.PIPE, 
-                               stdout=subprocess.PIPE, 
-                               stderr=subprocess.PIPE,
-                               shell=True,
-                               bufsize=1,
-                               universal_newlines=True)
+    process = subprocess.Popen(
+        'ollama run llama3',
+        stdin=subprocess.PIPE,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        shell=True,
+        bufsize=1,
+        universal_newlines=True
+    )
     
     process.stdin.write(full_prompt)
     process.stdin.close()
 
-    # Leer la salida línea por línea y transmitirla
-    for line in process.stdout:
+    while True:
+        line = process.stdout.readline()
+        if not line:
+            break
         yield line
 
-    # Esperar a que el proceso termine
     process.stdout.close()
     process.wait()
 
@@ -65,8 +53,15 @@ def model_output_generator(full_prompt):
 # Ruta para manejar las solicitudes POST con transmisión
 @app.post("/query/")
 async def get_response(query: Query):
-    full_prompt = initial_prompt + query.input_text
-
+    global initial_prompt_sent
+    full_prompt = ""
+    
+    if not initial_prompt_sent:
+        full_prompt = initial_prompt
+        initial_prompt_sent = True
+    else:
+        full_prompt = query.input_text
+    
     # Verificar si se ha proporcionado historial de conversación
     if query.conversation_history:
         for utterance in query.conversation_history:
