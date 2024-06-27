@@ -8,7 +8,7 @@ from model.alert_message import AlertMessage
 from fastapi import APIRouter, Depends, HTTPException, status, FastAPI
 import random
 from services.Jorgito import app as jorgito_app  # Importa la aplicación de Jorgito
-from services.middleware_verification import get_user_info_by_name
+from services.middleware_verification import get_user_info_by_id
 
 
 
@@ -129,7 +129,7 @@ async def send_message(
     full_name: str,
     user_id: int,
     message: str = None,
-    user_info: dict = Depends(get_user_info_by_name),
+    user_info: dict = Depends(get_user_info_by_id),
     db: Session = Depends(get_db)
 ):
     user_id = user_info["id"]

@@ -5,7 +5,7 @@ from controllers.auth_users import get_user_by_id
 
 
 
-def get_user_info_by_name(full_name: str, user_id: int, db: Session = Depends(get_db)):
+def get_user_info_by_id(full_name: str, user_id: int, db: Session = Depends(get_db)):
     user_by_id = get_user_by_id(user_id, db)
     if not user_by_id or user_by_id.full_name != full_name:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found or full_name does not match user_id")
