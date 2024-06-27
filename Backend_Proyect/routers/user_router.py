@@ -4,7 +4,7 @@ from services.email_service import send_email
 from sqlalchemy.orm import Session
 from dataBase.db import get_db
 from model.user import UserCreate, CreateUsersRequest, LoginRequest
-from model.alert_message import AlertMessage
+from model.alert_message import AlertMessage, AlertMessageRequest
 from fastapi import APIRouter, Depends, HTTPException, status, FastAPI
 import random
 from services.Jorgito import app as jorgito_app  # Importa la aplicación de Jorgito
@@ -59,7 +59,7 @@ async def login_user(login_request: LoginRequest, db: Session = Depends(get_db))
 # Ruta para obtener un usuario por su id
 @user_rutes.get('/{id}')
 async def get_user_id(id: int, db: Session = Depends(get_db)):
-    user = get_user_by_id(id, db)
+    user = get_user_info_by_name(id, db)
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
     return {"message":"Usuario encontrado","Usuario":user}
@@ -126,19 +126,24 @@ async def change_name_route(full_name: str, new_name: str, db: Session = Depends
  # Ruta para enviar un mensaje de emergencia o una denuncia
 @user_rutes.post('/sendMessage')
 async def send_message(
+<<<<<<< HEAD
     full_name: str,
     user_id: int,
     message: str = None,
     user_info: dict = Depends(get_user_info_by_id),
+=======
+    alert_message: AlertMessageRequest,
+>>>>>>> origin/IvanPz
     db: Session = Depends(get_db)
 ):
-    user_id = user_info["id"]
-    full_name = user_info["full_name"]
-    puesto_trabajo = user_info["puesto_trabajo"]
-    
+    full_name = alert_message.full_name
+    user_id = alert_message.user_id
+    puesto_trabajo = alert_message.puesto_trabajo
+    message = alert_message.message
+
     if message is None:
         message = "¡Emergencia! Necesito asistencia."
-    
+    print(full_name, user_id, puesto_trabajo, message)
     # Crear una instancia de AlertMessage y guardarla en la base de datos
     alert_message = AlertMessage(user_id=user_id, full_name=full_name, puesto_trabajo=puesto_trabajo, message=message)
     db.add(alert_message)
