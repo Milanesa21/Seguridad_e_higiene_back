@@ -59,7 +59,7 @@ async def login_user(login_request: LoginRequest, db: Session = Depends(get_db))
 # Ruta para obtener un usuario por su id
 @user_rutes.get('/{id}')
 async def get_user_id(id: int, db: Session = Depends(get_db)):
-    user = get_user_info_by_name(id, db)
+    user = get_user_info_by_id(id, db)
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
     return {"message":"Usuario encontrado","Usuario":user}
@@ -126,14 +126,7 @@ async def change_name_route(full_name: str, new_name: str, db: Session = Depends
  # Ruta para enviar un mensaje de emergencia o una denuncia
 @user_rutes.post('/sendMessage')
 async def send_message(
-<<<<<<< HEAD
-    full_name: str,
-    user_id: int,
-    message: str = None,
-    user_info: dict = Depends(get_user_info_by_id),
-=======
     alert_message: AlertMessageRequest,
->>>>>>> origin/IvanPz
     db: Session = Depends(get_db)
 ):
     full_name = alert_message.full_name
