@@ -2,7 +2,6 @@ from fastapi import FastAPI
 from routers.user_router import user_rutes
 from routers.auth_router import auth_router
 from fastapi.middleware.cors import CORSMiddleware
-import init_db  # Importa el módulo para inicializar la base de datos
 from services.Jorgito import app as jorgito_app  # Importa la aplicación de Jorgito
 
 # Para correr el servidor se debe ejecutar el siguiente comando en la terminal

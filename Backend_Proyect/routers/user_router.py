@@ -20,7 +20,7 @@ async def create_users(request: CreateUsersRequest, db: Session = Depends(get_db
     users = []
     for i in range(request.num_usuarios):
         password = "123456"  # Contraseña predeterminada
-        email = f"email{random.randint(1, 100000)}@predeterminado.com"  # Generar email único
+        email = f"email{random.randint(1, 100000)}@predeterminado.com"  # Generar email ú   nico
         user_data = {
             "full_name": f"Usuario N{i+1}",
             "email": email,
@@ -65,8 +65,17 @@ async def get_user_id(id: int, db: Session = Depends(get_db)):
     return {"message":"Usuario encontrado","Usuario":user}
 
 
+# Ruta para obtener un usuario por su nombre
 @user_rutes.get('/{full_name}')
 async def get_user_by_full_name(full_name: str, db: Session = Depends(get_db)):
+    user = get_user_by_name(full_name, db)
+    if not user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+    return {"message":"Usuario encontrado","Usuario":user}
+
+# Ruta para obtener todos los usuarios por su nombre
+@user_rutes.get('/{full_name}')
+async def get_all_user_by_full_name(full_name: str, db: Session = Depends(get_db)):
     user = get_all_user_by_name(full_name, db)
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
