@@ -1,4 +1,4 @@
-from controllers.auth_users import create_user, authenticate_user, get_all_user_by_name, delete_user, change_password, change_job_position, get_user_email, change_name, get_user_by_id, get_user_by_name
+from controllers.auth_users import create_user, authenticate_user, get_all_user_by_name, delete_user, change_password, change_job_position, get_user_email, change_name, get_user_by_name
 from services.jwt import write_token
 from services.email_service import send_email
 from sqlalchemy.orm import Session
@@ -7,7 +7,7 @@ from model.user import UserCreate, CreateUsersRequest, LoginRequest
 from model.alert_message import AlertMessage, AlertMessageRequest
 from fastapi import APIRouter, Depends, HTTPException, status, FastAPI
 import random
-from services.Jorgito import app as jorgito_app  # Importa la aplicación de Jorgito
+from services.Jorgito import app as jorgito_app 
 from services.middleware_verification import get_user_info_by_id
 
 
