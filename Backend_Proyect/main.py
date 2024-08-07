@@ -6,7 +6,7 @@ from services.Jorgito import app as jorgito_app  # Importa la aplicación de Jor
 
 # Para correr el servidor se debe ejecutar el siguiente comando en la terminal
 # uvicorn main:app --reload
-
+ 
 app = FastAPI()
 
 origins = [

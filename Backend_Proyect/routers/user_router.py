@@ -7,7 +7,7 @@ from model.user import UserCreate, CreateUsersRequest, LoginRequest
 from model.alert_message import AlertMessage, AlertMessageRequest
 from fastapi import APIRouter, Depends, HTTPException, status, FastAPI
 import random
-from services.Jorgito import app as jorgito_app  # Importa la aplicación de Jorgito
+from services.Jorgito import app as jorgito_app 
 from services.middleware_verification import get_user_info_by_id
 
 

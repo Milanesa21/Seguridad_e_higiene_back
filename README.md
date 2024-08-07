@@ -29,7 +29,7 @@
     ```
 3. Se instalan las dependecian necesarias
     ```
-    pip install "fastapi[all]" bcrypt SQLAlchemy psycopg2 python-dotenv passlib
+    pip install "fastapi[all]" bcrypt SQLAlchemy psycopg2 python-dotenv passlib PyJWT 
     ```
     o tambien se puede hacer de la siguiente manera
     ```
