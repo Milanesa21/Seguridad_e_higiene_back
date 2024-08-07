@@ -12,4 +12,3 @@ class Company(Base):
     numero_jefe = Column(String, nullable=False)
     password = Column(String, nullable=False)
 
-    employees = relationship("Users", back_populates="company", cascade="all, delete-orphan")
