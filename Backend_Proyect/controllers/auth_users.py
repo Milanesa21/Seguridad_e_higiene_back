@@ -19,6 +19,7 @@ def create_user(user: UserCreate, db: Session):
     return db_user
 
 def get_user_by_id(id: int, db: Session):
+    """ trae un usuario por su id """
     return db.query(Users).filter(Users.id == id).first()
 
 def get_all_user_by_name(full_name: str, db: Session):

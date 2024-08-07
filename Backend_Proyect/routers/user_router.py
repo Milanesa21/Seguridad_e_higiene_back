@@ -1,3 +1,4 @@
+from urllib import response
 from controllers.auth_users import create_user, authenticate_user, get_all_user_by_name, delete_user, change_password, change_job_position, get_user_email, change_name, get_user_by_name
 from services.jwt import write_token
 from services.email_service import send_email
@@ -59,6 +60,8 @@ async def login_user(login_request: LoginRequest, db: Session = Depends(get_db))
 # Ruta para obtener un usuario por su id
 @user_rutes.get('/{id}')
 async def get_user_id(id: int, db: Session = Depends(get_db)):
+    """ trae un usuario por su id """
+
     user = get_user_info_by_id(id, db)
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
