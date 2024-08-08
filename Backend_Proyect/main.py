@@ -6,6 +6,7 @@ from routers.auth_router import auth_router
 from fastapi.middleware.cors import CORSMiddleware
 import init_db  # Importa el módulo para inicializar la base de datos
 from services.Jorgito import app as jorgito_app  # Importa la aplicación de Jorgito
+from controllers.socket_controllers import socketio as socketio_app
 
 # Para correr el servidor se debe ejecutar el siguiente comando en la terminal
 # uvicorn main:app --reload
@@ -31,7 +32,8 @@ app.include_router(auth_router)
 app.include_router(company_rutes)
 
 # Montar la aplicación de Jorgito
-app.mount("/jorgito", jorgito_app)  # Asegúrate de que la ruta está en minúsculas
+app.mount("/jorgito", jorgito_app)
+app.mount("/socket.io", socketio_app)
 
 if __name__ == "__main__":
     import uvicorn

@@ -9,6 +9,7 @@ from fastapi import APIRouter, Depends, HTTPException, status, FastAPI
 import random
 from services.Jorgito import app as jorgito_app  # Importa la aplicación de Jorgito
 from services.middleware_verification import get_user_info_by_id
+from controllers.socket_controllers import sio
 
 
 
@@ -132,12 +133,8 @@ async def change_name_route(full_name: str, new_name: str, db: Session = Depends
     return {"message": "El nombre de usuario fue correctamente cambiado"}
 
 
- # Ruta para enviar un mensaje de emergencia o una denuncia
 @user_rutes.post('/sendMessage')
-async def send_message(
-    alert_message: AlertMessageRequest,
-    db: Session = Depends(get_db)
-):
+async def send_message(alert_message: AlertMessageRequest, db: Session = Depends(get_db)):
     full_name = alert_message.full_name
     user_id = alert_message.user_id
     puesto_trabajo = alert_message.puesto_trabajo
@@ -146,12 +143,19 @@ async def send_message(
     if message is None:
         message = "¡Emergencia! Necesito asistencia."
     print(full_name, user_id, puesto_trabajo, message)
+    
     # Crear una instancia de AlertMessage y guardarla en la base de datos
     alert_message = AlertMessage(user_id=user_id, full_name=full_name, puesto_trabajo=puesto_trabajo, message=message)
     db.add(alert_message)
     db.commit()
-    
-    # En este ejemplo, simplemente devolvemos un mensaje de confirmación
+
+    # Enviar alerta a través de Socket.IO
+    await sio.emit('alert', {
+        'full_name': full_name,
+        'puesto_trabajo': puesto_trabajo,
+        'message': message
+    })
+
     return {"message": f"Mensaje enviado a {full_name} en el puesto de trabajo {puesto_trabajo}: {message}"}
 
 

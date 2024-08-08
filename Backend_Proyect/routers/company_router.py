@@ -30,7 +30,7 @@ def read_company(id_empresa: int, db: Session = Depends(get_db)):
 @company_rutes.put("/{id_empresa}", response_model=CompanyResponse)
 def update_existing_company(id_empresa: int, company: CompanyUpdate, db: Session = Depends(get_db)):
     company = update_company(id_empresa, company, db)
-    if not company:
+    if not update_company:
         raise HTTPException(status_code=404, detail="Company not found or update failed")
     return company
 
