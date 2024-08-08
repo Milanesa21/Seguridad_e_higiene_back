@@ -3,7 +3,6 @@ from sqlalchemy.orm import relationship
 from dataBase.db import Base
 from dataBase.db import engine
 from .user import Users
-from pydantic import BaseModel
 
 class AlertMessage(Base):
     __tablename__ = "alert_messages"
@@ -16,9 +15,3 @@ class AlertMessage(Base):
     
     # Relación con la tabla de usuarios
     user = relationship("Users", back_populates="alert_messages")
-
-class AlertMessageRequest(BaseModel):
-    user_id: int
-    full_name: str 
-    puesto_trabajo: str
-    message: str
