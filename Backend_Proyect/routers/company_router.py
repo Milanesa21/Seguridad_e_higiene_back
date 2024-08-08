@@ -6,6 +6,7 @@ from controllers.company_controllers import (
     create_company, 
     get_company_by_id, 
     update_company, 
+    delete_company,
     authenticate_company
 )
 from model.schemas.company_schemas import CompanyCreate, CompanyUpdate, CompanyResponse
@@ -33,6 +34,12 @@ def update_existing_company(id_empresa: int, company: CompanyUpdate, db: Session
         raise HTTPException(status_code=404, detail="Company not found or update failed")
     return company
 
+@company_rutes.delete("/{id_empresa}", response_model=CompanyResponse)
+def delete_existing_company(id_empresa: int, db: Session = Depends(get_db)):
+    company = delete_company(id_empresa, db)
+    if not company:
+        raise HTTPException(status_code=404, detail="Company not found or delete failed")
+    return company
 
 @company_rutes.post("/authenticate", response_model=CompanyResponse)
 def authenticate_existing_company(correo_jefe: str, password: str, db: Session = Depends(get_db)):

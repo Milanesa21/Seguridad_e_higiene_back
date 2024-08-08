@@ -1,4 +1,3 @@
-from urllib import response
 from controllers.auth_users import create_user, authenticate_user, get_all_user_by_name, delete_user, change_password, change_job_position, get_user_email, change_name, get_user_by_name
 from services.jwt import write_token
 from services.email_service import send_email
@@ -8,7 +7,7 @@ from model.user import UserCreate, CreateUsersRequest, LoginRequest
 from model.alert_message import AlertMessage, AlertMessageRequest
 from fastapi import APIRouter, Depends, HTTPException, status, FastAPI
 import random
-from services.Jorgito import app as jorgito_app 
+from services.Jorgito import app as jorgito_app  # Importa la aplicación de Jorgito
 from services.middleware_verification import get_user_info_by_id
 
 
@@ -21,7 +20,7 @@ async def create_users(request: CreateUsersRequest, db: Session = Depends(get_db
     users = []
     for i in range(request.num_usuarios):
         password = "123456"  # Contraseña predeterminada
-        email = f"email{random.randint(1, 100000)}@predeterminado.com"  # Generar email ú   nico
+        email = f"email{random.randint(1, 100000)}@predeterminado.com"  # Generar email único
         user_data = {
             "full_name": f"Usuario N{i+1}",
             "email": email,
@@ -60,8 +59,6 @@ async def login_user(login_request: LoginRequest, db: Session = Depends(get_db))
 # Ruta para obtener un usuario por su id
 @user_rutes.get('/{id}')
 async def get_user_id(id: int, db: Session = Depends(get_db)):
-    """ trae un usuario por su id """
-
     user = get_user_info_by_id(id, db)
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")

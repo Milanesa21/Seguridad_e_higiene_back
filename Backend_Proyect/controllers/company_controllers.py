@@ -54,6 +54,13 @@ def update_company(id_empresa: int, company_data: CompanyUpdate, db: Session) ->
     db.refresh(db_company)
     return CompanyResponse.from_orm(db_company)
 
+def delete_company(id_empresa: int, db: Session) -> CompanyResponse:
+    db_company = db.query(Company).filter(Company.id_empresa == id_empresa).first()
+    if not db_company:
+        return None
+    db.delete(db_company)
+    db.commit()
+    return CompanyResponse.from_orm(db_company)
 
 
 def authenticate_company(correo_jefe: str, password: str, db: Session) -> CompanyResponse:
