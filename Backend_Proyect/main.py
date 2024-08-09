@@ -6,6 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 import init_db
 from services.Jorgito import app as jorgito_app
 from controllers.socket_controllers import router as socket_router  # Importa el router de WebSocket
+from services.roles_permisos_asignacion import Db_insert_RP
 
 app = FastAPI()
 
@@ -27,6 +28,9 @@ app.include_router(auth_router)
 app.include_router(company_rutes)
 app.mount("/jorgito", jorgito_app)
 app.include_router(socket_router)  # Incluye el router de WebSocket
+
+Db_insert_RP()
+
 
 if __name__ == "__main__":
     import uvicorn
