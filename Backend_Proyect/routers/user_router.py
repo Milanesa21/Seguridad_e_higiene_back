@@ -27,8 +27,11 @@ async def create_users(request: CreateUsersRequest, db: Session = Depends(get_db
             "full_name": f"Usuario N{i+1}",
             "email": email,
             "password": password,
-            "puesto_trabajo": request.puesto_trabajo
+            "puesto_trabajo": request.puesto_trabajo,
+            'id_role': 4
         }
+        if user_data['puesto_trabajo'] == 'Area de seguridad':
+            user_data['id_role'] = 3
         try:
             db_user = create_user(UserCreate(**user_data), db)
             users.append(db_user)
@@ -62,7 +65,6 @@ async def login_user(login_request: LoginRequest, db: Session = Depends(get_db))
 @user_rutes.get('/{id}')
 async def get_user_id(id: int, db: Session = Depends(get_db)):
     """ trae un usuario por su id """
-
     user = get_user_info_by_id(id, db)
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")

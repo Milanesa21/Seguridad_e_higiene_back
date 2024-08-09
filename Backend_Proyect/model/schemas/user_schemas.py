@@ -5,6 +5,7 @@ class UserBase(BaseModel):
     full_name: str = Field(min_length=4,max_length=30)
     email: EmailStr
     puesto_trabajo: str = Field(min_length=3,max_length=100)
+    id_role: int
 
 class CreateUsersRequest(BaseModel):
     puesto_trabajo: str = Field(min_length=3,max_length=100)

@@ -1,10 +1,8 @@
-from model.schemas.roles_schemas import RolBase
-from model.schemas.permisos_schemas import PermisoBase
 from model.roles_permisos import Rol_permiso
 from model.permisos import Permisos
 from model.roles import Rol
 from sqlalchemy.orm import Session
-from dataBase.db import get_db
+from model.user import Users
 
 def agregar_permiso_a_rol(db: Session):
     def admin_RP(db: Session):
@@ -23,7 +21,7 @@ def agregar_permiso_a_rol(db: Session):
             raise ValueError("Error al asignar permisos al rol admin")
 
     def segurity_RP(db: Session):
-        permisos_segurity = db.query(Permisos).filter(Permisos.id < 7).all()
+        permisos_segurity = db.query(Permisos).filter(Permisos.id >= 8).all()
         rol_segurity = db.query(Rol).filter(Rol.id == 3).first()
 
         try:
@@ -51,7 +49,23 @@ def agregar_permiso_a_rol(db: Session):
         except:
             db.rollback()
             raise ValueError("Error al asignar permisos al rol super_admin")
+        
+    def user_RP(db: Session):
+        permisos_user = db.query(Permisos).filter(Permisos.id == 12).all()
+        rol_user = db.query(Rol).filter(Rol.id == 4).first()
+
+        try:
+            rol_permiso = [
+                Rol_permiso(id_rol=rol_user.id, id_permiso=permiso.id)
+                for permiso in permisos_user
+            ]
+            db.add_all(rol_permiso)
+            db.commit()
+        except:
+            db.rollback()
+            raise ValueError("Error al asignar permisos al rol user")
 
     admin_RP(db)
     segurity_RP(db)
     super_admin_RP(db)
+    user_RP(db)

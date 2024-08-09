@@ -11,7 +11,10 @@ class Users(Base):
     email = Column(String, unique=True, index=True)
     puesto_trabajo = Column(String)
     password = Column(String)
-    
+
+    # Relación uno a muchos con la tabla de roles
+    id_role = Column(Integer, ForeignKey("roles.id"))
+    rol = relationship("Rol", back_populates="users")
     # Relación uno a muchos con la tabla de mensajes de alerta
     alert_messages = relationship("AlertMessage", back_populates="user")
 
