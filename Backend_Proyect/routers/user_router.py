@@ -155,12 +155,6 @@ async def send_message(alert_message: AlertMessageRequest, db: Session = Depends
     db.add(alert_message)
     db.commit()
 
-    # Enviar alerta a través de Socket.IO
-    await sio.emit('alert', {
-        'full_name': full_name,
-        'puesto_trabajo': puesto_trabajo,
-        'message': message
-    })
 
     return {"message": f"Mensaje enviado a {full_name} en el puesto de trabajo {puesto_trabajo}: {message}"}
 
