@@ -10,6 +10,7 @@ from fastapi import APIRouter, Depends, HTTPException, status, FastAPI
 import random
 from services.Jorgito import app as jorgito_app  # Importa la aplicación de Jorgito
 from services.middleware_verification import get_user_info_by_id
+from controllers.rol_permiso_controllers import agregar_permiso_al_rol, quitar_permiso_al_rol
 
 
 
@@ -164,6 +165,14 @@ async def send_message(alert_message: AlertMessageRequest, db: Session = Depends
     return {"message": f"Mensaje enviado a {full_name} en el puesto de trabajo {puesto_trabajo}: {message}"}
 
 
+@user_rutes.post('/AgregarPermiso')
+async def add_permios_a_rol(id_user: int, id_permiso: int, db: Session = Depends(get_db)):
+    return agregar_permiso_al_rol(id_user, id_permiso, db)
+
+
+@user_rutes.delete('/QuitarPermiso')
+async def remove_permiso_a_rol(id_user: int, id_permiso: int, db: Session = Depends(get_db)):
+    return quitar_permiso_al_rol(id_user, id_permiso, db)
 
 
 

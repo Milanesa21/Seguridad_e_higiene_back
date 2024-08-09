@@ -69,3 +69,38 @@ def agregar_permiso_a_rol(db: Session):
     segurity_RP(db)
     super_admin_RP(db)
     user_RP(db)
+
+
+
+def agregar_permiso_al_rol(id_user: int, id_permisos: int, db: Session):
+    user = db.query(Users).filter(Users.id == id_user).first()
+    
+    try:
+        if not user or not user.rol:
+            return {"detail": "User not found or user does not have a role"}
+        rol = user.rol
+        Permiso = db.query(Permisos).filter(Permisos.id == id_permisos).first()
+        if not Permiso:
+            return {"detail": "Permission not found"}
+        rol.permisos.append(Permiso)
+        db.commit()
+        return {"message": "Permission added to role successfully"}
+    except:
+        return {'message': 'Invalid user or invalid rol', 'status_code': 401}
+    
+
+def quitar_permiso_al_rol(id_user: int, id_permisos: int, db: Session):
+    user = db.query(Users).filter(Users.id == id_user).first()
+    
+    try:
+        if not user or not user.rol:
+            return {"detail": "User not found or user does not have a role"}
+        rol = user.rol
+        Permiso = db.query(Permisos).filter(Permisos.id == id_permisos).first()
+        if not Permiso:
+            return {"detail": "Permission not found"}
+        rol.permisos.remove(Permiso)
+        db.commit()
+        return {"message": "Permission removed from role successfully"}
+    except:
+        return {'message': 'Invalid user or invalid rol', 'status_code': 401}
