@@ -1,4 +1,5 @@
-from model.user import Users, UserCreate
+from model.user import Users
+from model.schemas.user_schemas import UserCreate
 from sqlalchemy.orm import Session
 from controllers.password_hasheado import hash_password, verify_password
 
