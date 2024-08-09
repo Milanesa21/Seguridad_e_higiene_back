@@ -3,42 +3,30 @@ from routers.user_router import user_rutes
 from routers.company_router import company_rutes
 from routers.auth_router import auth_router
 from fastapi.middleware.cors import CORSMiddleware
-import init_db  # Importa el módulo para inicializar la base de datos
-from services.Jorgito import app as jorgito_app  # Importa la aplicación de Jorgito
-from services.roles_permisos_asignacion import Db_insert_RP
+import init_db
+from services.Jorgito import app as jorgito_app
+from controllers.socket_controllers import router as socket_router  # Importa el router de WebSocket
 
-from controllers.socket_controllers import socketio as socketio_app
-
-# Para correr el servidor se debe ejecutar el siguiente comando en la terminal
-# uvicorn main:app --reload
- 
 app = FastAPI()
 
 origins = [
-    "http://localhost:5173",  # Reemplaza con la URL de tu aplicación React sin la barra al final
+    "http://127.0.0.1:3000",  # Cambiado al puerto por defecto de React
     "http://127.0.0.1:8000",  # Asegúrate de que el puerto es el correcto
 ]
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Permitir solicitudes desde cualquier origen
+    allow_origins=["*"],
     allow_credentials=True,
-    allow_methods=["*"],  # Permitir todos los métodos
+    allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Incluir las rutas de usuario
 app.include_router(user_rutes)
 app.include_router(auth_router)
 app.include_router(company_rutes)
-
-# Montar la aplicación de Jorgito
 app.mount("/jorgito", jorgito_app)
-app.mount("/socket.io", socketio_app)
-
-
-# Inicializar roles y permisos si no existen
-Db_insert_RP()
+app.include_router(socket_router)  # Incluye el router de WebSocket
 
 if __name__ == "__main__":
     import uvicorn

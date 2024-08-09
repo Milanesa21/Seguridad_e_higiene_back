@@ -1,22 +1,36 @@
-import socket
-import socketio
-from fastapi import FastAPI
-from fastapi_socketio import SocketManager
+from fastapi import APIRouter, WebSocket, WebSocketDisconnect
+from typing import List
 
-sio = socketio.AsyncServer()
-app = FastAPI()
-socket_manager = SocketManager(app=app, socketio_server=sio)
+router = APIRouter()
 
-@sio.event
-async def connect(sid, environ):
-    print(f"connect {sid}")
+class ConnectionManager:
+    def __init__(self):
+        self.active_connections: List[WebSocket] = []
 
-@sio.event
-async def disconnect(sid):
-    print(f"disconnect {sid}")
+    async def connect(self, websocket: WebSocket):
+        await websocket.accept()
+        self.active_connections.append(websocket)
 
-@sio.event
-async def sed_alert(sid,data):
-    print(f"Alerta recibida de {sid}: {data}")
+    def disconnect(self, websocket: WebSocket):
+        self.active_connections.remove(websocket)
 
-    await sio.emit('alert',data)
+    async def send_personal_message(self, message: str, websocket: WebSocket):
+        await websocket.send_text(message)
+
+    async def broadcast(self, message: str):
+        for connection in self.active_connections:
+            await connection.send_text(message)
+
+manager = ConnectionManager()
+
+@router.websocket("/ws")
+async def websocket_endpoint(websocket: WebSocket):
+    await manager.connect(websocket)
+    try:
+        while True:
+            data = await websocket.receive_text()
+            await manager.send_personal_message(f"You wrote: {data}", websocket)
+            await manager.broadcast(f"New message: {data}")
+    except WebSocketDisconnect:
+        manager.disconnect(websocket)
+        await manager.broadcast("A client left the chat")

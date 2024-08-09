@@ -1,6 +1,5 @@
 from pydantic import BaseModel
 
-
 class AlertMessageRequest(BaseModel):
     user_id: int
     full_name: str 
