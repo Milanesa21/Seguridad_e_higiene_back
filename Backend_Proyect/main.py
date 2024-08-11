@@ -8,6 +8,8 @@ from services.Jorgito import app as jorgito_app
 from controllers.socket_controllers import router as socket_router  # Importa el router de WebSocket
 from services.roles_permisos_asignacion import Db_insert_RP
 
+
+#Para iniciar el proyecto: uvicorn main:app --reload
 app = FastAPI()
 
 origins = [

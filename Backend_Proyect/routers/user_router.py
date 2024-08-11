@@ -11,7 +11,7 @@ import random
 from services.Jorgito import app as jorgito_app  # Importa la aplicación de Jorgito
 from services.middleware_verification import get_user_info_by_id
 from controllers.rol_permiso_controllers import agregar_permiso_al_rol, quitar_permiso_al_rol
-
+from controllers.socket_controllers import manager
 
 
 user_rutes = APIRouter(prefix='/Usuarios', tags=['Crud de Usuarios'])
@@ -62,10 +62,9 @@ async def login_user(login_request: LoginRequest, db: Session = Depends(get_db))
 
 
 # Ruta para obtener un usuario por su id
-@user_rutes.get('/{id}')
+@user_rutes.get('/user/id/{id}')
 async def get_user_id(id: int, db: Session = Depends(get_db)):
     """ trae un usuario por su id """
-
     user = get_user_info_by_id(id, db)
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
@@ -73,7 +72,7 @@ async def get_user_id(id: int, db: Session = Depends(get_db)):
 
 
 # Ruta para obtener un usuario por su nombre
-@user_rutes.get('/{full_name}')
+@user_rutes.get('/user/name/{full_name}')
 async def get_user_by_full_name(full_name: str, db: Session = Depends(get_db)):
     user = get_user_by_name(full_name, db)
     if not user:
@@ -81,32 +80,32 @@ async def get_user_by_full_name(full_name: str, db: Session = Depends(get_db)):
     return {"message":"Usuario encontrado","Usuario":user}
 
 # Ruta para obtener todos los usuarios por su nombre
-@user_rutes.get('/{full_name}')
+@user_rutes.get('/user/all/{full_name}')
 async def get_all_user_by_full_name(full_name: str, db: Session = Depends(get_db)):
-    user = get_all_user_by_name(full_name, db)
+    users = get_all_user_by_name(full_name, db)
+    if not users:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No users found")
+    return {"message":"Usuarios encontrados","Usuarios":users}
+
+
+#Ruta para obtener un usuario por su email
+@user_rutes.get('/user/email/{email}')
+async def get_user_by_email(email: str, db: Session = Depends(get_db)):
+    user = get_user_email(email, db)
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
     return {"message":"Usuario encontrado","Usuario":user}
 
-
-#Ruta para obtener un usuario por su email
-@user_rutes.get('/email/{email}')
-async def get_user__by_email(email: str, db: Session = Depends(get_db)):
-    emaill = get_user_email(email, db)
-    if not emaill:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
-    return {"message":"Usuario encontrado","Usuario":emaill}
-
 # Ruta para eliminar un usuario
-@user_rutes.delete('/deleteUser/{full_name}')
-async def delete_user_route(full_name: str,email: str, puesto_trabajo: str, db: Session = Depends(get_db)):
-    deleted = delete_user(full_name,email, puesto_trabajo, db)
+@user_rutes.delete('/user/delete/{full_name}')
+async def delete_user_route(full_name: str, email: str, puesto_trabajo: str, db: Session = Depends(get_db)):
+    deleted = delete_user(full_name, email, puesto_trabajo, db)
     if not deleted:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
     return {"message": "Usuario eliminado exitosamente"}
 
 #eviar correo para cambiar contraseña
-@user_rutes.post('/sendEmail/{full_name}')
+@user_rutes.post('/user/sendEmail/{full_name}')
 async def send_email_route(full_name: str, db: Session = Depends(get_db)):
     user = get_user_by_name(full_name, db)
     if not user:
@@ -114,8 +113,8 @@ async def send_email_route(full_name: str, db: Session = Depends(get_db)):
     send_email(full_name, user.email)
 
 # Ruta para cambiar la contraseña de un usuario
-@user_rutes.patch('/changePassword/{full_name}')
-async def change_password_route(full_name: str,email: str, new_password: str, db: Session = Depends(get_db)):
+@user_rutes.patch('/user/changePassword/{full_name}')
+async def change_password_route(full_name: str, email: str, new_password: str, db: Session = Depends(get_db)):
     changed = change_password(full_name, email, new_password, db)
     if not changed:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
@@ -123,7 +122,7 @@ async def change_password_route(full_name: str,email: str, new_password: str, db
     
 
 # Ruta para cambiar el puesto de trabajo de un usuario
-@user_rutes.patch('/changeJobPosition/{full_name}')
+@user_rutes.patch('/user/changeJobPosition/{full_name}')
 async def change_job_position_route(full_name: str, email: str, new_position: str, db: Session = Depends(get_db)):
     changed = change_job_position(full_name, email, new_position, db)
     if not changed:
@@ -131,7 +130,7 @@ async def change_job_position_route(full_name: str, email: str, new_position: st
     return {"message": "Puesto de trabajo cambiado exitosamente"}
 
 # Ruta para cambiar el nombre de un usuario
-@user_rutes.patch('/changeName/{full_name}')
+@user_rutes.patch('/user/changeName/{full_name}')
 async def change_name_route(full_name: str, new_name: str, db: Session = Depends(get_db)):
     changed = change_name(full_name, new_name, db)
     if not changed:
@@ -139,33 +138,53 @@ async def change_name_route(full_name: str, new_name: str, db: Session = Depends
     return {"message": "El nombre de usuario fue correctamente cambiado"}
 
 
-@user_rutes.post('/sendMessage')
+# Ruta para enviar un mensaje
+@user_rutes.post('/alert/sendMessage')
 async def send_message(alert_message: AlertMessageRequest, db: Session = Depends(get_db)):
     full_name = alert_message.full_name
     user_id = alert_message.user_id
     puesto_trabajo = alert_message.puesto_trabajo
     message = alert_message.message
 
-    if message is None:
+    # Verificar si el mensaje está vacío o es None y asignar el mensaje predeterminado si es necesario
+    if not message:
         message = "¡Emergencia! Necesito asistencia."
+    
     print(full_name, user_id, puesto_trabajo, message)
     
     # Crear una instancia de AlertMessage y guardarla en la base de datos
-    alert_message = AlertMessage(user_id=user_id, full_name=full_name, puesto_trabajo=puesto_trabajo, message=message)
-    db.add(alert_message)
+    alert_message_instance = AlertMessage(user_id=user_id, full_name=full_name, puesto_trabajo=puesto_trabajo, message=message)
+    db.add(alert_message_instance)
     db.commit()
 
+    # Enviar mensaje a todos los clientes conectados a través del WebSocket
+    message_data = {"user_id": user_id, "full_name": full_name, "puesto_trabajo": puesto_trabajo, "message": message}
+    await manager.broadcast(message_data)
 
-    return {"message": f"Mensaje enviado a {full_name} en el puesto de trabajo {puesto_trabajo}: {message}"}
+    return {"message": f"Mensaje enviado de {full_name} en el puesto de trabajo {puesto_trabajo}: {message}"}
 
 
-@user_rutes.post('/AgregarPermiso')
-async def add_permios_a_rol(id_user: int, id_permiso: int, db: Session = Depends(get_db)):
+
+# Ruta para obtener todos los mensajes
+@user_rutes.get('/alert/messages')
+async def get_messages(db: Session = Depends(get_db)):
+    # Obtener todos los mensajes de la base de datos y ordenarlos por id_message
+    messages = db.query(AlertMessage).order_by(AlertMessage.id_message).all()
+
+    if not messages:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No hay mensajes")
+
+    # Formatear los mensajes para la respuesta
+    response = [{"user_id": message.user_id, "full_name": message.full_name, "puesto_trabajo": message.puesto_trabajo, "message": message.message} for message in messages]
+    
+    return response
+
+@user_rutes.post('/role/addPermission')
+async def add_permissions_to_role(id_user: int, id_permiso: int, db: Session = Depends(get_db)):
     return agregar_permiso_al_rol(id_user, id_permiso, db)
 
-
-@user_rutes.delete('/QuitarPermiso')
-async def remove_permiso_a_rol(id_user: int, id_permiso: int, db: Session = Depends(get_db)):
+@user_rutes.delete('/role/removePermission')
+async def remove_permission_from_role(id_user: int, id_permiso: int, db: Session = Depends(get_db)):
     return quitar_permiso_al_rol(id_user, id_permiso, db)
 
 
