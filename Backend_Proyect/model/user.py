@@ -18,6 +18,8 @@ class Users(Base):
     # Relación uno a muchos con la tabla de mensajes de alerta
     alert_messages = relationship("AlertMessage", back_populates="user")
 
+    # Relación muchos a muchos con la tabla de permisos
+    user_permisos = relationship("User_Permiso", back_populates="user")
 
     def change_password(self, new_password: str):
         self.password = new_password

@@ -7,7 +7,7 @@ import init_db
 from services.Jorgito import app as jorgito_app
 from controllers.socket_controllers import router as socket_router  # Importa el router de WebSocket
 from services.roles_permisos_asignacion import Db_insert_RP
-
+from routers.permiso_router import permiso_router
 
 #Para iniciar el proyecto: uvicorn main:app --reload
 app = FastAPI()
@@ -30,6 +30,7 @@ app.include_router(auth_router)
 app.include_router(company_rutes)
 app.mount("/jorgito", jorgito_app)
 app.include_router(socket_router)  # Incluye el router de WebSocket
+app.include_router(permiso_router)
 
 Db_insert_RP()
 

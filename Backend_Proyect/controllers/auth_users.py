@@ -83,3 +83,29 @@ def change_name(full_name: str, new_name: str, db: Session):
         return True
     return False
 
+def get_all_users(db: Session):
+    users = db.query(Users).all()
+    result = []
+
+    if not users:
+        return {"message": "No users found"}
+    
+    for user in users:
+        if user.rol:
+            rol = user.rol
+            permisos = [permiso.nombre_permiso for permiso in rol.permisos]
+
+            result.append({
+                "id": user.id,
+                "full_name": user.full_name,
+                "puesto_trabajo": user.puesto_trabajo,
+                "email": user.email,
+                "rol": {
+                    "id": rol.id,
+                    "nombre": rol.nombre_rol,
+                    "permisos": permisos
+                }
+            })
+
+    return result
+

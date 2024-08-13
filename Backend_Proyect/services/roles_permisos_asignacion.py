@@ -9,8 +9,6 @@ def roles_insert(db: Session):
 
     exite_rol = db.query(Rol).all()
     exite_rol_nombre={rol.nombre_rol for rol in exite_rol}
-    if exite_rol == None:
-        return
 
     roles = [
         Rol(nombre_rol="super_admin", descripcion="Para la creacion de empresas"),
@@ -21,14 +19,14 @@ def roles_insert(db: Session):
 
     nuevos_roles = [rol for rol in roles if rol.nombre_rol not in exite_rol_nombre]
 
-    db.add_all(nuevos_roles)
-    db.commit()
+    if nuevos_roles:
+        db.add_all(nuevos_roles)
+        db.commit()
+
 def permisos_insert(db: Session):
 
     exite_permiso = db.query(Permisos).all()
     exite_permiso_nombre={permiso.nombre_permiso for permiso in exite_permiso}
-    if exite_permiso == None:
-        return
 
     permisos = [
         Permisos(nombre_permiso="crear_empresa", descripcion="Permite la creacion de empresas"),
@@ -47,19 +45,28 @@ def permisos_insert(db: Session):
 
     nuevos_permisos = [permiso for permiso in permisos if permiso.nombre_permiso not in exite_permiso_nombre]
 
-    db.add_all(nuevos_permisos)
-    db.commit()
+    if nuevos_permisos:
+        db.add_all(nuevos_permisos)
+        db.commit()
 
 def Db_insert_RP():
     db: Session = next(get_db())
     try:
         roles_insert(db)
+    except:
+        db.rollback()
+        raise ValueError("Error al insertar roles")
+    finally:
+        db.close()
+
+    try:
         permisos_insert(db)
     except:
         db.rollback()
-        raise ValueError("Error al insertar roles y permisos")
+        raise ValueError("Error al insertar permisos")
     finally:
         db.close()
+
 
     try:
         agregar_permiso_a_rol(db)

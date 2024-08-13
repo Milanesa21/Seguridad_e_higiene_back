@@ -10,3 +10,4 @@ class Permisos(Base):
     descripcion = Column(String)
 
     roles = relationship("Rol", secondary="roles_permisos", back_populates="permisos")
+    users = relationship("User_Permiso", back_populates="permiso")

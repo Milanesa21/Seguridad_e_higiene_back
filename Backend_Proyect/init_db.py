@@ -5,6 +5,7 @@ from model.alert_message import AlertMessage
 from model.permisos import Permisos
 from model.roles import Rol
 from model.roles_permisos import Rol_permiso
+from model.user_permiso import User_Permiso
 
 try:
     Base.metadata.create_all(engine, checkfirst=True)

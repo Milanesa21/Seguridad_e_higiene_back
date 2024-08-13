@@ -1,4 +1,4 @@
-from controllers.auth_users import create_user, authenticate_user, get_all_user_by_name, delete_user, change_password, change_job_position, get_user_email, change_name, get_user_by_name
+from controllers.auth_users import create_user, authenticate_user, get_all_user_by_name, delete_user, change_password, change_job_position, get_user_email, change_name, get_user_by_name, get_all_users
 from services.jwt import write_token
 from services.email_service import send_email
 from sqlalchemy.orm import Session
@@ -10,7 +10,6 @@ from fastapi import APIRouter, Depends, HTTPException, status, FastAPI
 import random
 from services.Jorgito import app as jorgito_app  # Importa la aplicación de Jorgito
 from services.middleware_verification import get_user_info_by_id
-from controllers.rol_permiso_controllers import agregar_permiso_al_rol, quitar_permiso_al_rol
 from controllers.socket_controllers import manager
 
 
@@ -179,15 +178,9 @@ async def get_messages(db: Session = Depends(get_db)):
     
     return response
 
-@user_rutes.post('/role/addPermission')
-async def add_permissions_to_role(id_user: int, id_permiso: int, db: Session = Depends(get_db)):
-    return agregar_permiso_al_rol(id_user, id_permiso, db)
-
-@user_rutes.delete('/role/removePermission')
-async def remove_permission_from_role(id_user: int, id_permiso: int, db: Session = Depends(get_db)):
-    return quitar_permiso_al_rol(id_user, id_permiso, db)
-
-
+@user_rutes.get('/user/All')
+async def get_users(db: Session = Depends(get_db)):
+    return get_all_users(db)
 
 # Incluir las rutas de Jorgito en el router principal
 main_app = FastAPI()
