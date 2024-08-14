@@ -2,7 +2,7 @@ from model.roles import Rol
 from model.permisos import Permisos
 from dataBase.db import get_db
 from sqlalchemy.orm import Session
-from controllers.rol_permiso_controllers import agregar_permiso_a_rol
+from controllers.rol_permiso_controllers import agregar_permisos_iniciales
 
 
 def roles_insert(db: Session):
@@ -69,7 +69,7 @@ def Db_insert_RP():
 
 
     try:
-        agregar_permiso_a_rol(db)
+        agregar_permisos_iniciales(db)
     except:
         db.rollback()
         raise ValueError("Error al asignar permisos a roles")

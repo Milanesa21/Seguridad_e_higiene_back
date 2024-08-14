@@ -1,4 +1,6 @@
 from model.user import Users
+from model.permisos import Permisos
+from model.user_permiso import User_Permiso
 from model.schemas.user_schemas import UserCreate
 from sqlalchemy.orm import Session
 from controllers.password_hasheado import hash_password, verify_password
@@ -13,30 +15,46 @@ def authenticate_user(full_name: str, password: str, db: Session):
 
 def create_user(user: UserCreate, db: Session):
     hashed_password = hash_password(user.password)
-    db_user = Users(full_name=user.full_name, email=user.email,puesto_trabajo=user.puesto_trabajo ,password=hashed_password, id_role=user.id_role)
+    db_user = Users(full_name=user.full_name, email=user.email, puesto_trabajo=user.puesto_trabajo, password=hashed_password, id_role=user.id_role)
     db.add(db_user)
-    db.commit() 
+    db.commit()
     db.refresh(db_user)
+
+    # Asignar permisos del rol al usuario
+    if db_user.rol:
+        for permiso in db_user.rol.permisos:
+            user_permiso = User_Permiso(id_user=db_user.id, id_permiso=permiso.id)
+            db.add(user_permiso)
+        db.commit()
+
     return db_user
 
-def get_user_by_id(id: int, db: Session):
-    """ trae un usuario por su id """
-    user = db.query(Users).filter(Users.id == id).first()
-    if user and user.rol:
-        rol = user.rol
-        permisos = [permiso.nombre_permiso for permiso in rol.permisos]
 
+def get_user_by_id(id: int, db: Session):
+    """ Trae un usuario por su id """
+    try:
+        user = db.query(Users).filter(Users.id == id).first()
+        if not user:
+            return {"detail": "User not found"}
+        
+        # Obtener permisos específicos asignados al usuario
+        user_permisos = db.query(Permisos).join(User_Permiso).filter(User_Permiso.id_user == id).all()
+        user_permisos = [permiso.nombre_permiso for permiso in user_permisos]
+        
         return {
             "id": user.id,
             "full_name": user.full_name,
             "puesto_trabajo": user.puesto_trabajo,
             "email": user.email,
             "rol": {
-                "id": rol.id,
-                "nombre": rol.nombre_rol,
-                "permisos": permisos
+                "id": user.rol.id if user.rol else None,
+                "nombre": user.rol.nombre_rol if user.rol else None,
+                "permisos": user_permisos
             }
         }
+    except Exception as e:
+        return {"detail": f"Error: {e}"}
+
 
 def get_all_user_by_name(full_name: str, db: Session):
     return db.query(Users).filter(Users.full_name == full_name).all()
@@ -84,16 +102,16 @@ def change_name(full_name: str, new_name: str, db: Session):
     return False
 
 def get_all_users(db: Session):
-    users = db.query(Users).all()
-    result = []
+    try:
+        users = db.query(Users).all()
+        result = []
 
-    if not users:
-        return {"message": "No users found"}
-    
-    for user in users:
-        if user.rol:
-            rol = user.rol
-            permisos = [permiso.nombre_permiso for permiso in rol.permisos]
+        if not users:
+            return {"message": "No users found"}
+        
+        for user in users:
+            user_permisos = db.query(Permisos).join(User_Permiso).filter(User_Permiso.id_user == user.id).all()
+            user_permisos = [permiso.nombre_permiso for permiso in user_permisos]
 
             result.append({
                 "id": user.id,
@@ -101,11 +119,16 @@ def get_all_users(db: Session):
                 "puesto_trabajo": user.puesto_trabajo,
                 "email": user.email,
                 "rol": {
-                    "id": rol.id,
-                    "nombre": rol.nombre_rol,
-                    "permisos": permisos
+                    "id": user.rol.id if user.rol else None,
+                    "nombre": user.rol.nombre_rol if user.rol else None,
+                    "permisos": user_permisos
                 }
             })
 
-    return result
+        return result
+    except Exception as e:
+        return {"message": f"Error: {e}"}
 
+        return result
+    except Exception as e:
+        return {"message": f"Error: {e}"}
