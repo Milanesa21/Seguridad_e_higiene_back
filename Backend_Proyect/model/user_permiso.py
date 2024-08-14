@@ -10,4 +10,4 @@ class User_Permiso(Base):
     id_permiso = Column(Integer, ForeignKey("permisos.id"))
 
     user = relationship("Users", back_populates="user_permisos")
-    permiso = relationship("Permisos", back_populates="users")
+    permiso = relationship("Permisos", back_populates="user_permisos")

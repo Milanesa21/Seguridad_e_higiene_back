@@ -9,5 +9,8 @@ class Permisos(Base):
     nombre_permiso = Column(String, unique=True)
     descripcion = Column(String)
 
+    # Relación muchos a muchos con la tabla de roles
     roles = relationship("Rol", secondary="roles_permisos", back_populates="permisos")
-    users = relationship("User_Permiso", back_populates="permiso")
+
+    # Relación muchos a muchos con la tabla de users_permisos
+    user_permisos = relationship("User_Permiso", back_populates="permiso", overlaps="users")
