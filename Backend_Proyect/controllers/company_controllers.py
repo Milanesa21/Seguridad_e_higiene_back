@@ -3,30 +3,39 @@ from sqlalchemy.exc import IntegrityError
 from model.company import Company
 from controllers.password_hasheado import hash_password, verify_password
 from model.schemas.company_schemas import CompanyCreate, CompanyUpdate, CompanyResponse
+from fastapi import HTTPException
+from sqlalchemy.exc import IntegrityError
 
-def create_company(company_data: CompanyCreate, db: Session) -> CompanyResponse:
-    existing_company = db.query(Company).filter(Company.correo_jefe == company_data.correo_jefe).first()
-    if existing_company:
-        raise ValueError("Ya existe una empresa con el correo electrónico proporcionado.")
-    
-    hashed_password = hash_password(company_data.password)
-    
-    db_company = Company(
-        nombre_empresa=company_data.nombre_empresa,
-        nombre_jefe=company_data.nombre_jefe,
-        correo_jefe=company_data.correo_jefe,
-        numero_jefe=company_data.numero_jefe,
-        password=hashed_password
-    )
-    
+def create_company(company_data: dict, db: Session):
     try:
-        db.add(db_company)
+        hashed_password = hash_password(company_data.get('password', ''))
+
+        existing_company = db.query(Company).filter(Company.correo_jefe == company_data['correo_jefe']).first()
+
+        if existing_company:
+            raise HTTPException(status_code=400, detail="La empresa ya está registrada")
+
+        new_company = Company(
+            nombre_empresa=company_data['nombre_empresa'],
+            nombre_jefe=company_data['nombre_jefe'],
+            correo_jefe=company_data['correo_jefe'],
+            numero_jefe=company_data['numero_jefe'],
+            password=hashed_password
+        )
+        
+        db.add(new_company)
         db.commit()
-        db.refresh(db_company)
-        return CompanyResponse.from_orm(db_company)
-    except IntegrityError as e:
+        db.refresh(new_company)
+        return new_company
+
+    except IntegrityError:
+        db.rollback()  # Rollback the transaction in case of error
+        raise HTTPException(status_code=400, detail="Error de integridad al registrar la empresa.")
+    except Exception:
         db.rollback()
-        raise ValueError("Error al crear la empresa en la base de datos.") from e
+        raise HTTPException(status_code=400, detail="Error al registrar la empresa.")
+
+
 
 def get_company_by_id(id_empresa: int, db: Session) -> CompanyResponse:
     db_company = db.query(Company).filter(Company.id_empresa == id_empresa).first()
@@ -53,6 +62,7 @@ def update_company(id_empresa: int, company_data: CompanyUpdate, db: Session) ->
     db.commit()
     db.refresh(db_company)
     return CompanyResponse.from_orm(db_company)
+
 
 def delete_company(id_empresa: int, db: Session) -> CompanyResponse:
     db_company = db.query(Company).filter(Company.id_empresa == id_empresa).first()

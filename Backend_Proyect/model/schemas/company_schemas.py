@@ -10,7 +10,8 @@ class CompanyCreate(CompanyBase):
     password: str = Field(..., min_length=6, max_length=100)
 
 class CompanyUpdate(CompanyBase):
-    password: str = None
+    password: str = None # Opcional
+
 
 class CompanyResponse(CompanyBase):
     id_empresa: int
@@ -18,3 +19,6 @@ class CompanyResponse(CompanyBase):
     class Config:
         orm_mode = True
         from_attributes = True
+
+class CompanyRequest(CompanyBase):
+    password: str = Field(..., min_length=6, max_length=100)
