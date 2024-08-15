@@ -2,7 +2,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
 from model.company import Company
 from controllers.password_hasheado import hash_password, verify_password
-from model.schemas.company_schemas import CompanyCreate, CompanyUpdate, CompanyResponse
+from model.schemas.company_schemas import CompanyUpdate, CompanyResponse
 from fastapi import HTTPException
 from sqlalchemy.exc import IntegrityError
 

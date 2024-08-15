@@ -1,10 +1,6 @@
-from fastapi import APIRouter, WebSocket, WebSocketDisconnect, Depends
+from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 from typing import List
 import json
-from model.alert_message import AlertMessage
-from model.schemas.alert_message_schemas import AlertMessageRequest
-from dataBase.db import get_db
-from sqlalchemy.orm import Session
 
 router = APIRouter()
 
@@ -15,16 +11,24 @@ class ConnectionManager:
     async def connect(self, websocket: WebSocket):
         await websocket.accept()
         self.active_connections.append(websocket)
+        self.log_active_connections("Client connected")
 
     def disconnect(self, websocket: WebSocket):
         self.active_connections.remove(websocket)
+        self.log_active_connections("Client disconnected")
 
     async def send_personal_message(self, message: dict, websocket: WebSocket):
         await websocket.send_text(json.dumps(message))
 
     async def broadcast(self, message: dict):
+        connections_count = len(self.active_connections)
+        print(f"Broadcasting message to {connections_count} clients")
         for connection in self.active_connections:
             await connection.send_text(json.dumps(message))
+        print(f"Message sent to {connections_count} clients")
+
+    def log_active_connections(self, action):
+        print(f"{action}. Total active connections: {len(self.active_connections)}")
 
 manager = ConnectionManager()
 
@@ -34,29 +38,12 @@ async def websocket_endpoint(websocket: WebSocket):
     try:
         while True:
             data = await websocket.receive_text()
-            # Broadcast al resto de conexiones
-            await manager.broadcast({"message": f"New alert: {data}"})
+            message = json.loads(data)
+            if message.get('message') == 'Emergencia':
+                print("Received an emergency message.")
+                await manager.broadcast({"type": "emergency", "message": "Emergencia"})
+            else:
+                await manager.broadcast({"type": "alert", "message": message})
     except WebSocketDisconnect:
         manager.disconnect(websocket)
-        await manager.broadcast({"message": "A client left the chat"})
-
-
-@router.post('/alert/sendMessage')
-async def send_message(alert_message: AlertMessageRequest, db: Session = Depends(get_db)):
-    full_name = alert_message.full_name
-    user_id = alert_message.user_id
-    puesto_trabajo = alert_message.puesto_trabajo
-    message = alert_message.message
-
-    if not message:
-        message = "¡Emergencia! Necesito asistencia."
-    
-    alert_message_instance = AlertMessage(user_id=user_id, full_name=full_name, puesto_trabajo=puesto_trabajo, message=message)
-    db.add(alert_message_instance)
-    db.commit()
-
-    # Enviar mensaje a todos los clientes conectados a través del WebSocket
-    message_data = {"user_id": user_id, "full_name": full_name, "puesto_trabajo": puesto_trabajo, "message": message}
-    await manager.broadcast(message_data)
-
-    return {"message": f"Mensaje enviado de {full_name} en el puesto de trabajo {puesto_trabajo}: {message}"}
+        await manager.broadcast({"type": "info", "message": "A client left the chat"})
