@@ -31,6 +31,8 @@ async def create_users(request: CreateUsersRequest, db: Session = Depends(get_db
         }
         if user_data['puesto_trabajo'] == 'Area de seguridad':
             user_data['id_role'] = 3
+        elif user_data["puesto_trabajo"] == 'Admin':
+            user_data['id_role'] = 2
         try:
             db_user = create_user(UserCreate(**user_data), db)
             users.append(db_user)

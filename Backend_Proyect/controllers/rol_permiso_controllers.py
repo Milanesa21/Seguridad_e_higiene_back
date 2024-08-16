@@ -7,7 +7,7 @@ from model.user import Users
 
 def agregar_permisos_iniciales(db: Session):
     def asignar_permisos_rol_admin():
-        permisos_admin = db.query(Permisos).filter(Permisos.id < 3).all()
+        permisos_admin = db.query(Permisos).filter(Permisos.id > 3).all()
         rol_admin = db.query(Rol).filter(Rol.id == 2).first()
         if not rol_admin:
             raise ValueError("Role admin not found")
