@@ -2,7 +2,8 @@ from model.roles import Rol
 from model.permisos import Permisos
 from dataBase.db import get_db
 from sqlalchemy.orm import Session
-from controllers.rol_permiso_controllers import agregar_permisos_iniciales
+from controllers.rol_permiso_controllers import agregar_permisos_iniciales, crear_super_admin
+
 
 
 def roles_insert(db: Session):
@@ -73,5 +74,13 @@ def Db_insert_RP():
     except:
         db.rollback()
         raise ValueError("Error al asignar permisos a roles")
+    finally:
+        db.close()
+
+    try:
+        crear_super_admin(db)
+    except:
+        db.rollback()
+        raise ValueError("Error al crear super admin")
     finally:
         db.close()

@@ -4,6 +4,8 @@ from model.permisos import Permisos
 from model.roles import Rol
 from sqlalchemy.orm import Session
 from model.user import Users
+from model.schemas.user_schemas import UserCreate
+from controllers.auth_users import create_user
 
 def agregar_permisos_iniciales(db: Session):
     def asignar_permisos_rol_admin():
@@ -136,3 +138,24 @@ def quitar_permiso_al_rol(id_user: int, id_permisos: int, db: Session):
 
 def get_all_permisos(db: Session):
     return db.query(Permisos).all()
+
+def crear_super_admin(db: Session):
+    user = db.query(Users).filter(Users.id_role == 1).first()
+    if user:
+        return {"message": "Super admin already exists"}
+    try:
+        user_data = {
+            "full_name": 'aaaaaaaaa',
+            "email": 'asdasdasda@gmail.com',
+            "password": 'saaaas',
+            "puesto_trabajo": 'saaaaas',
+            'id_role': 1
+        }
+        create_user(UserCreate(**user_data), db)
+    except:
+        db.rollback()
+        raise ValueError("Error al crear usuario")
+    finally:
+        db.close()
+    return {"status": "success"}
+
