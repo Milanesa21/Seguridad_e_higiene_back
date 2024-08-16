@@ -1,9 +1,9 @@
-from controllers.auth_users import create_user, authenticate_user, get_all_user_by_name, delete_user, change_password, change_job_position, get_user_email, change_name, get_user_by_name, get_all_users
+from controllers.auth_users import create_user, authenticate_user, get_all_user_by_name, delete_user, change_password, change_job_position, get_user_by_id, get_user_email, change_name, get_user_by_name, get_all_users
 from services.jwt import write_token
 from services.email_service import send_email
 from sqlalchemy.orm import Session
 from dataBase.db import get_db
-from model.schemas.user_schemas import UserCreate, CreateUsersRequest, LoginRequest
+from model.schemas.user_schemas import UserCreate, CreateUsersRequest, LoginRequest, UpdateUserRequest
 from model.alert_message import AlertMessage
 from model.schemas.alert_message_schemas import AlertMessageRequest
 from fastapi import APIRouter, Depends, HTTPException, status, FastAPI
@@ -61,7 +61,38 @@ async def login_user(login_request: LoginRequest, db: Session = Depends(get_db))
     token = write_token(user_data)
     return token
 
+# Ruta para cambiar nombre, email y contraseña de un usuario
+@user_rutes.patch('/user/updateData')
+async def update_user_data(request: UpdateUserRequest, db: Session = Depends(get_db)):
+    id = request.id
+    # Obtener el usuario por nombre
+    user = get_user_by_id(id, db)
+    if not user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+    
+    # Cambiar el nombre del usuario
+    if request.new_name:
+        changed_name = change_name(id, request.new_name, db)
+        if not changed_name:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Failed to change name")
 
+    # Cambiar el email del usuario
+    if request.new_email:
+        # Verificar si el nuevo email ya está en uso
+        existing_user = get_user_by_id(id, db)
+        if existing_user and existing_user.full_name != request.full_name:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Email already in use")
+        user.email = request.new_email
+        db.commit()
+        db.refresh(user)
+
+    # Cambiar la contraseña del usuario
+    if request.new_password:
+        changed_password = change_password(id, user.email, request.new_password, db)
+        if not changed_password:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Failed to change password")
+
+    return {"message": "User data updated successfully"}
 # Ruta para obtener un usuario por su id
 @user_rutes.get('/user/id/{id}')
 async def get_user_id(id: int, db: Session = Depends(get_db)):

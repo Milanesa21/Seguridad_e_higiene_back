@@ -73,8 +73,8 @@ def delete_user(full_name:str, email: str, puesto_trabajo: str, db: Session):
         return True
     return False
 
-def change_password(full_name: str, email: str, new_password: str, db: Session):
-    user = db.query(Users).filter(Users.full_name == full_name, Users.email == email).first()
+def change_password(id: int, new_password: str, db: Session):
+    user = db.query(Users).filter(Users.id == id).first()
     if user:
         user.password = hash_password(new_password)
         db.commit()
@@ -92,8 +92,8 @@ def change_job_position(full_name:str, email:str, new_position: str, db: Session
         return True
     return False
 
-def change_name(full_name: str, new_name: str, db: Session):
-    user = db.query(Users).filter(Users.full_name == full_name).first()
+def change_name(id: int, new_name: str, db: Session):
+    user = db.query(Users).filter(Users.id == id).first()
     if user:
         user.full_name = new_name
         db.commit()
