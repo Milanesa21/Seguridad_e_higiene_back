@@ -83,6 +83,16 @@ def change_password(id: int, new_password: str, db: Session):
     return False
 
 
+def change_email(id: int, email:str, new_email: str, db: Session):
+    user = db.query(Users).filter(Users.id == id, Users.email == email).first()
+    if user:
+        user.email = new_email
+        db.commit()
+        db.refresh(user)
+        return True
+    return False
+
+
 def change_job_position(full_name:str, email:str, new_position: str, db: Session):
     user = db.query(Users).filter(Users.full_name == full_name, Users.email == email).first()
     if user:
