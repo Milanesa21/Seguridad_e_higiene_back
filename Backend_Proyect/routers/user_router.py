@@ -175,4 +175,21 @@ async def send_message(alert_message: AlertMessageRequest, db: Session = Depends
     
     return {"message": "Alert message sent successfully"}
 
+# Ruta para obtener todos los mensajes
+@user_rutes.get('/alert/messages')
+async def get_messages(db: Session = Depends(get_db)):
+    # Obtener todos los mensajes de la base de datos y ordenarlos por id_message
+    messages = db.query(AlertMessage).order_by(AlertMessage.id_message).all()
 
+    if not messages:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No hay mensajes")
+
+    # Formatear los mensajes para la respuesta
+    response = [{"user_id": message.user_id, "full_name": message.full_name, "puesto_trabajo": message.puesto_trabajo, "message": message.message} for message in messages]
+
+    return response
+
+# Aquí se debe incluir Jorgito como subaplicación del FastAPI principal.
+app = FastAPI()
+app.include_router(user_rutes)
+app.mount("/jorgito", jorgito_app)  # Montar la subaplicación
