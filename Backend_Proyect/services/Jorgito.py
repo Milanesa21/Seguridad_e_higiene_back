@@ -8,7 +8,7 @@ class Query(BaseModel):
 
 app = FastAPI()
 
-# Generador para transmitir respuestas parciales
+# Generador para transmitir respuestas en chunks de letras
 def model_output_generator(full_prompt):
     process = subprocess.Popen(
         'ollama run Jorgito',
@@ -24,10 +24,10 @@ def model_output_generator(full_prompt):
     process.stdin.close()
 
     while True:
-        line = process.stdout.readline()
-        if not line:
+        char = process.stdout.read(1)  
+        if not char:
             break
-        yield line
+        yield char
 
     process.stdout.close()
     process.wait()
