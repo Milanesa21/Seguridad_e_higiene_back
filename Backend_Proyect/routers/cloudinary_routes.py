@@ -16,6 +16,7 @@ cloudinary.config(
 
 file_router = APIRouter(prefix='/file', tags=['Files'])
 
+# Ruta para subir un archivo
 @file_router.post('/upload/')
 async def upload_file(file: UploadFile = File(...), db: Session = Depends(get_db)):
     try:
@@ -34,23 +35,31 @@ async def upload_file(file: UploadFile = File(...), db: Session = Depends(get_db
     except cloudinary.exceptions.Error as e:
         raise HTTPException(status_code=500, detail="Error uploading file")
 
+# Ruta para listar todos los archivos
 @file_router.get("/images/")
-async def list_images():
+async def list_images(db: Session = Depends(get_db)):
     try:
-        # Obtener una lista de recursos desde Cloudinary
-        response = cloudinary.api.resources(type='upload', resource_type='image', max_results=100)
-        # Extraer los public_ids y URLs de la respuesta
-        images = [
+        # Consultar todos los archivos en la base de datos
+        files = db.query(CloudinaryModel).all()
+        
+        # Extraer los detalles necesarios y convertir `uploaded_at` a cadena
+        image_list = [
             {
-                "public_id": resource['public_id'],
-                "url": cloudinary.CloudinaryImage(resource['public_id']).build_url()
+                "public_id": file.public_id,
+                "url": file.url,
+                "uploaded_at": file.uploaded_at.isoformat()  # Convertir datetime a string
             }
-            for resource in response.get('resources', [])
+            for file in files
         ]
-        return JSONResponse(content={"images": images})
-    except cloudinary.exceptions.Error as e:
+        
+        return JSONResponse(content={"images": image_list})
+    except Exception as e:
+        # Imprimir el error para depuración
+        print(f"Error retrieving images: {e}")
         raise HTTPException(status_code=500, detail="Failed to retrieve images")
 
+
+# Ruta para eliminar un archivo
 @file_router.delete('/{public_id}')
 async def delete_file(public_id: str, db: Session = Depends(get_db)):
     try:
