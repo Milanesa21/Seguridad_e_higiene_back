@@ -7,6 +7,7 @@ import init_db
 from controllers.socket_controllers import router as socket_router  # Importa el router de WebSocket
 from services.roles_permisos_asignacion import Db_insert_RP
 from routers.permiso_router import permiso_router
+from routers.cloudinary_routes import file_router as cloudinary_router
 #from routers.IA_uniformes_routes import router as IA_uniformes_router
 #from routers.IA_ambiente_routes import router as IA_ambiente_router
 
@@ -31,6 +32,7 @@ app.include_router(auth_router)
 app.include_router(company_rutes)
 app.include_router(socket_router)  
 app.include_router(permiso_router)
+app.include_router(cloudinary_router)
 #app.include_router(IA_uniformes_router)
 #app.include_router(IA_ambiente_router)
 

@@ -6,6 +6,7 @@ from model.permisos import Permisos
 from model.roles import Rol
 from model.roles_permisos import Rol_permiso
 from model.user_permiso import User_Permiso
+from model.cloudinary_model import File
 
 try:
     Base.metadata.create_all(engine, checkfirst=True)
