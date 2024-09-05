@@ -21,5 +21,9 @@ class Users(Base):
     # Relación muchos a muchos con la tabla de permisos
     user_permisos = relationship("User_Permiso", back_populates="user")
 
+    # Clave foránea para la relación con la tabla de empresas
+    id_empresa = Column(Integer, ForeignKey("companies.id_empresa"))
+    company = relationship("Company", back_populates="users")
+
     def change_password(self, new_password: str):
         self.password = new_password

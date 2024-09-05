@@ -1,8 +1,9 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from controllers.company_controllers import create_company, get_company_by_id, update_company, delete_company, authenticate_company
-from model.schemas.company_schemas import CompanyCreate, CompanyUpdate, CompanyResponse
+from model.schemas.company_schemas import CompanyBase, CompanyCreate, CompanyRequest, CompanyUpdate, CompanyResponse
 from dataBase.db import get_db
+from services.jwt import write_token
 
 # Definición del APIRouter con prefijo y etiquetas
 company_rutes = APIRouter(prefix='/empresas', tags=['CRUD de Empresas'])
@@ -44,3 +45,24 @@ def autenticar_empresa(correo_jefe: str, password: str, db: Session = Depends(ge
     if not company:
         raise HTTPException(status_code=400, detail="Credenciales incorrectas.")
     return company
+
+
+@company_rutes.post('/login')
+async def login_company(login_request: CompanyRequest, db: Session = Depends(get_db)):
+    nombre_empresa = login_request.nombre_empresa
+    password = login_request.password
+    print('Lo que devuelve el front',login_request)
+    print('nombre_empresa',nombre_empresa)
+    print('password',password)
+    company = authenticate_company(nombre_empresa, password, db)
+    print(company)
+
+    if not company:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid credentials")
+    company_data = {
+        "id": company.id_empresa,
+    }
+
+    # Generar un token JWT y devolverlo en la respuesta
+    token = write_token(company_data)
+    return token

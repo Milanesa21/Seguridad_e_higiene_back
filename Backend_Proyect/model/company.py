@@ -1,5 +1,6 @@
 from sqlalchemy import Column, Integer, String
 from dataBase.db import Base
+from sqlalchemy.orm import relationship
 
 class Company(Base):
     __tablename__ = "companies"
@@ -10,3 +11,6 @@ class Company(Base):
     correo_jefe = Column(String, unique=True, index=True, nullable=False)
     numero_jefe = Column(String, nullable=False)
     password = Column(String, nullable=False)
+
+    # Relación uno a muchos con la tabla de usuarios
+    users = relationship("Users", back_populates="company")

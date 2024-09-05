@@ -20,5 +20,6 @@ class CompanyResponse(CompanyBase):
         orm_mode = True
         from_attributes = True
 
-class CompanyRequest(CompanyBase):
+class CompanyRequest(BaseModel):
+    nombre_empresa: str = Field(..., min_length=1, max_length=100)
     password: str = Field(..., min_length=6, max_length=100)

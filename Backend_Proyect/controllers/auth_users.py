@@ -15,7 +15,14 @@ def authenticate_user(full_name: str, password: str, db: Session):
 
 def create_user(user: UserCreate, db: Session):
     hashed_password = hash_password(user.password)
-    db_user = Users(full_name=user.full_name, email=user.email, puesto_trabajo=user.puesto_trabajo, password=hashed_password, id_role=user.id_role)
+    db_user = Users(
+        full_name=user.full_name, 
+        email=user.email, 
+        puesto_trabajo=user.puesto_trabajo, 
+        password=hashed_password, 
+        id_role=user.id_role,
+        id_empresa=user.id_empresa  # Añadimos id_empresa al crear el usuario
+    )
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
@@ -139,6 +146,3 @@ def get_all_users(db: Session):
     except Exception as e:
         return {"message": f"Error: {e}"}
 
-        return result
-    except Exception as e:
-        return {"message": f"Error: {e}"}

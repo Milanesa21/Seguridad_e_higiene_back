@@ -73,8 +73,9 @@ def delete_company(id_empresa: int, db: Session) -> CompanyResponse:
     return CompanyResponse.from_orm(db_company)
 
 
-def authenticate_company(correo_jefe: str, password: str, db: Session) -> CompanyResponse:
-    db_company = db.query(Company).filter(Company.correo_jefe == correo_jefe).first()
+def authenticate_company(nombre_empresa: str, password: str, db: Session) -> CompanyResponse:
+    db_company = db.query(Company).filter(Company.nombre_empresa == nombre_empresa).first()
+    print(db_company)
     if db_company and verify_password(password, db_company.password):
         return CompanyResponse.from_orm(db_company)
     return None

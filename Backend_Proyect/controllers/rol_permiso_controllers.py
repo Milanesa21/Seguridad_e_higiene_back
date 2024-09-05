@@ -141,6 +141,7 @@ def get_all_permisos(db: Session):
 
 def crear_super_admin(db: Session):
     user = db.query(Users).filter(Users.id_role == 1).first()
+
     if user:
         return {"message": "Super admin already exists"}
     try:
@@ -149,7 +150,8 @@ def crear_super_admin(db: Session):
             "email": 'asdasdasda@gmail.com',
             "password": 'saaaas',
             "puesto_trabajo": 'saaaaas',
-            'id_role': 1
+            'id_role': 1,
+            'id_empresa': 0
         }
         create_user(UserCreate(**user_data), db)
     except:

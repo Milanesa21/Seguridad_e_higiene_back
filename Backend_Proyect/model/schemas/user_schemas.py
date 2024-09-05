@@ -6,10 +6,12 @@ class UserBase(BaseModel):
     email: EmailStr
     puesto_trabajo: str = Field(min_length=3,max_length=100)
     id_role: int
+    id_empresa: int
 
 class CreateUsersRequest(BaseModel):
     puesto_trabajo: str = Field(min_length=3,max_length=100)
     num_usuarios: int = Field(ge=1)
+    id_empresa: int 
 
 class UpdateUserRequest(BaseModel):
     id: int
