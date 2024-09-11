@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status, FastAPI
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 import random
 from controllers.auth_users import (
@@ -168,7 +168,6 @@ async def send_message(alert_message: AlertMessageRequest, db: Session = Depends
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Message is required")
 
     # Lógica para enviar mensaje de alerta
-    # Asumiendo que tienes una lógica para manejar esto en la clase AlertMessage
     alert = AlertMessage(full_name=full_name, user_id=user_id, puesto_trabajo=puesto_trabajo, message=message)
     db.add(alert)
     db.commit()
