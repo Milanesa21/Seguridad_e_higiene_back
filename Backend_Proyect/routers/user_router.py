@@ -28,7 +28,8 @@ async def create_users(request: CreateUsersRequest, db: Session = Depends(get_db
             "email": email,
             "password": password,
             "puesto_trabajo": request.puesto_trabajo,
-            'id_role': 4
+            'id_role': 4,
+            'id_empresa': request.id_empresa
         }
         if user_data['puesto_trabajo'] == 'Area de seguridad':
             user_data['id_role'] = 3
@@ -48,13 +49,16 @@ async def create_users(request: CreateUsersRequest, db: Session = Depends(get_db
 @user_routes.post('/login')
 async def login_user(login_request: LoginRequest, db: Session = Depends(get_db)):
     full_name = login_request.full_name
+    puesto_trabajo = login_request.puesto_trabajo
     password = login_request.password
-    user = authenticate_user(full_name, password, db)
+    id_empresa = login_request.id_empresa
+    user = authenticate_user(id_empresa,full_name,puesto_trabajo, password, db)
     if not user:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid credentials")
     
     user_data = {
         "id": user.id,
+        'id_empresa': user.id_empresa,
     }
 
     # Generar un token JWT y devolverlo en la respuesta

@@ -23,6 +23,9 @@ def create_company(company_data: dict, db: Session):
             password=hashed_password
         )
         
+        if 'id_empresa' in company_data and company_data['id_empresa'] is not None:
+            new_company.id_empresa = company_data['id_empresa']
+
         db.add(new_company)
         db.commit()
         db.refresh(new_company)
@@ -36,6 +39,23 @@ def create_company(company_data: dict, db: Session):
         raise HTTPException(status_code=400, detail="Error al registrar la empresa.")
 
 
+def crear_empresa_inicial(db: Session):
+    db_company = db.query(Company).filter(Company.id_empresa == 0).first()
+    if db_company:
+        return None
+    try:
+        company_data = {
+            'id_empresa': 0,
+            'nombre_empresa': 'CJ_LibertyCity',
+            'nombre_jefe': 'Carl Johnson',
+            'correo_jefe': 'CJ_GroveStreet@gmail.com',
+            'numero_jefe': '555-1234',
+            'password': 'GTA_SanAndreas'
+        }
+        create_company(company_data, db)
+    except Exception as e:
+        print(f"Error al crear empresa inicial: {e}")
+        return None
 
 def get_company_by_id(id_empresa: int, db: Session) -> CompanyResponse:
     db_company = db.query(Company).filter(Company.id_empresa == id_empresa).first()
@@ -79,3 +99,6 @@ def authenticate_company(nombre_empresa: str, password: str, db: Session) -> Com
     if db_company and verify_password(password, db_company.password):
         return CompanyResponse.from_orm(db_company)
     return None
+
+def get_companies(db: Session):
+    return db.query(Company).all()

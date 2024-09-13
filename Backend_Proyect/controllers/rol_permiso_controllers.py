@@ -146,10 +146,10 @@ def crear_super_admin(db: Session):
         return {"message": "Super admin already exists"}
     try:
         user_data = {
-            "full_name": 'aaaaaaaaa',
-            "email": 'asdasdasda@gmail.com',
-            "password": 'saaaas',
-            "puesto_trabajo": 'saaaaas',
+            "full_name": 'Bruce Wayne',
+            "email": 'NoSoyBatman@gmail.com',
+            "password": 'SoyBatman',
+            "puesto_trabajo": 'SuperAdmin',
             'id_role': 1,
             'id_empresa': 0
         }

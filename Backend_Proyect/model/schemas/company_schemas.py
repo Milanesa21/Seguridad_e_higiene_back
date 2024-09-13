@@ -8,6 +8,7 @@ class CompanyBase(BaseModel):
 
 class CompanyCreate(CompanyBase):
     password: str = Field(..., min_length=6, max_length=100)
+    id_superuser: int
 
 class CompanyUpdate(CompanyBase):
     password: str = None # Opcional
