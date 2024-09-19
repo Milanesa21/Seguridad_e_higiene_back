@@ -16,7 +16,8 @@ def get_user_info_by_id(user_id: int, db: Session = Depends(get_db)):
             "rol": {
                 'nombre': user_by_id['rol']['nombre'],
                 'permisos': user_by_id['rol']['permisos']
-            }
+            },
+        "id_empresa": user_by_id['id_empresa']
         }
     if user_by_id['rol']['id'] == 2:
         return {
@@ -25,7 +26,8 @@ def get_user_info_by_id(user_id: int, db: Session = Depends(get_db)):
             "rol": {
                 'nombre': user_by_id['rol']['nombre'],
                 'permisos': user_by_id['rol']['permisos']
-            }
+            },
+        "id_empresa": user_by_id['id_empresa']
         }
     return {
         "id": user_by_id['id'],
@@ -35,5 +37,6 @@ def get_user_info_by_id(user_id: int, db: Session = Depends(get_db)):
         "rol": {
             'nombre': user_by_id['rol']['nombre'],
             'permisos': user_by_id['rol']['permisos']
-        }
+        },
+        "id_empresa": user_by_id['id_empresa']
     }

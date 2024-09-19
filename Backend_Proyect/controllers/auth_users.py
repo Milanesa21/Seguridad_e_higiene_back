@@ -21,7 +21,7 @@ def create_user(user: UserCreate, db: Session):
         puesto_trabajo=user.puesto_trabajo, 
         password=hashed_password, 
         id_role=user.id_role,
-        id_empresa=user.id_empresa  # Añadimos id_empresa al crear el usuario
+        id_empresa=user.id_empresa  
     )
     db.add(db_user)
     db.commit()
@@ -57,7 +57,8 @@ def get_user_by_id(id: int, db: Session):
                 "id": user.rol.id if user.rol else None,
                 "nombre": user.rol.nombre_rol if user.rol else None,
                 "permisos": user_permisos
-            }
+            },
+            "id_empresa": user.id_empresa 
         }
     except Exception as e:
         return {"detail": f"Error: {e}"}

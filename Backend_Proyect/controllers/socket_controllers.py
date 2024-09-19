@@ -1,49 +1,56 @@
-from fastapi import APIRouter, WebSocket, WebSocketDisconnect
-from typing import List
+
+from fastapi import APIRouter, WebSocket, WebSocketDisconnect, Query
+from typing import List, Dict
 import json
 
 router = APIRouter()
 
 class ConnectionManager:
     def __init__(self):
-        self.active_connections: List[WebSocket] = []
+        self.active_connections: Dict[str, List[WebSocket]] = {}
 
-    async def connect(self, websocket: WebSocket):
+    async def connect(self, websocket: WebSocket, id_empresa: str):
         await websocket.accept()
-        self.active_connections.append(websocket)
-        self.log_active_connections("Client connected")
+        if id_empresa not in self.active_connections:
+            self.active_connections[id_empresa] = []
+        self.active_connections[id_empresa].append(websocket)
+        self.log_active_connections("Client connected", id_empresa)
 
-    def disconnect(self, websocket: WebSocket):
-        self.active_connections.remove(websocket)
-        self.log_active_connections("Client disconnected")
+    def disconnect(self, websocket: WebSocket, id_empresa: str):
+        self.active_connections[id_empresa].remove(websocket)
+        if not self.active_connections[id_empresa]:
+            del self.active_connections[id_empresa]
+        self.log_active_connections("Client disconnected", id_empresa)
 
     async def send_personal_message(self, message: dict, websocket: WebSocket):
         await websocket.send_text(json.dumps(message))
 
-    async def broadcast(self, message: dict):
-        connections_count = len(self.active_connections)
-        print(f"Broadcasting message to {connections_count} clients")
-        for connection in self.active_connections:
-            await connection.send_text(json.dumps(message))
-        print(f"Message sent to {connections_count} clients")
+    async def broadcast(self, message: dict, id_empresa: str):
+        if id_empresa in self.active_connections:
+            connections_count = len(self.active_connections[id_empresa])
+            print(f"Broadcasting message to {connections_count} clients of empresa {id_empresa}")
+            for connection in self.active_connections[id_empresa]:
+                await connection.send_text(json.dumps(message))
+            print(f"Message sent to {connections_count} clients of empresa {id_empresa}")
 
-    def log_active_connections(self, action):
-        print(f"{action}. Total active connections: {len(self.active_connections)}")
+    def log_active_connections(self, action: str, id_empresa: str):
+        connections_count = len(self.active_connections.get(id_empresa, []))
+        print(f"{action} for empresa {id_empresa}. Total active connections: {connections_count}")
 
 manager = ConnectionManager()
 
-@router.websocket("/ws")
-async def websocket_endpoint(websocket: WebSocket):
-    await manager.connect(websocket)
+@router.websocket("/ws/{id_empresa}")
+async def websocket_endpoint(websocket: WebSocket, id_empresa: str):
+    await manager.connect(websocket, id_empresa)
     try:
         while True:
             data = await websocket.receive_text()
             message = json.loads(data)
             if message.get('message') == 'Emergencia':
-                print("Received an emergency message.")
-                await manager.broadcast({"type": "emergency", "message": "Emergencia"})
+                print(f"Received an emergency message for empresa {id_empresa}.")
+                await manager.broadcast({"type": "emergency", "message": "Emergencia"}, id_empresa)
             else:
-                await manager.broadcast({"type": "alert", "message": message})
+                await manager.broadcast({"type": "alert", "message": message}, id_empresa)
     except WebSocketDisconnect:
-        manager.disconnect(websocket)
-        await manager.broadcast({"type": "info", "message": "A client left the chat"})
+        manager.disconnect(websocket, id_empresa)
+        await manager.broadcast({"type": "info", "message": "A client left the chat"}, id_empresa)
