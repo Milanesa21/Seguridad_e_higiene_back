@@ -39,8 +39,8 @@ async def upload_file(file: UploadFile = File(...), db: Session = Depends(get_db
 @file_router.get("/images/")
 async def list_images(db: Session = Depends(get_db)):
     try:
-        # Consultar todos los archivos en la base de datos
-        files = db.query(CloudinaryModel).all()
+        # Consultar y ordenar los archivos por fecha de subida (más reciente primero)
+        files = db.query(CloudinaryModel).order_by(CloudinaryModel.uploaded_at.desc()).all()
         
         # Extraer los detalles necesarios y convertir `uploaded_at` a cadena
         image_list = [
@@ -54,9 +54,9 @@ async def list_images(db: Session = Depends(get_db)):
         
         return JSONResponse(content={"images": image_list})
     except Exception as e:
-        # Imprimir el error para depuración
         print(f"Error retrieving images: {e}")
         raise HTTPException(status_code=500, detail="Failed to retrieve images")
+
 
 
 # Ruta para eliminar un archivo
