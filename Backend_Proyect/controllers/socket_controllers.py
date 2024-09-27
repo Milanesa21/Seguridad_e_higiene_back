@@ -1,5 +1,5 @@
 
-from fastapi import APIRouter, WebSocket, WebSocketDisconnect, Query
+from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 from typing import List, Dict
 import json
 
@@ -41,6 +41,13 @@ manager = ConnectionManager()
 
 @router.websocket("/ws/{id_empresa}")
 async def websocket_endpoint(websocket: WebSocket, id_empresa: str):
+    if not id_empresa or id_empresa == "null":
+        # Si id_empresa no está presente, lo tratamos como el id del usuario
+        id_empresa = websocket.headers.get("id")
+        if not id_empresa:
+            await websocket.close()
+            return
+
     await manager.connect(websocket, id_empresa)
     try:
         while True:
