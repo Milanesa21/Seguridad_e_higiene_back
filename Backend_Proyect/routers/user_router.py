@@ -191,3 +191,5 @@ async def get_messages(db: Session = Depends(get_db)):
     response = [{"user_id": message.user_id, "full_name": message.full_name, "puesto_trabajo": message.puesto_trabajo, "message": message.message} for message in messages]
 
     return response
+
+
