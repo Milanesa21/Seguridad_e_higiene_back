@@ -58,16 +58,14 @@ async def create_users(request: CreateUsersRequest, db: Session = Depends(get_db
 @user_routes.post('/login')
 async def login_user(login_request: LoginRequest, db: Session = Depends(get_db)):
     full_name = login_request.full_name
-    puesto_trabajo = login_request.puesto_trabajo
     password = login_request.password
-    id_empresa = login_request.id_empresa
-    user = authenticate_user(id_empresa,full_name,puesto_trabajo, password, db)
+    user = authenticate_user(full_name, password, db)
+    
     if not user:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid credentials")
     
     user_data = {
         "id": user.id,
-        'id_empresa': user.id_empresa,
     }
 
     # Generar un token JWT y devolverlo en la respuesta

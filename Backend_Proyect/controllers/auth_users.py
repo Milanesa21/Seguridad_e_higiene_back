@@ -5,8 +5,8 @@ from model.schemas.user_schemas import UserCreate
 from sqlalchemy.orm import Session
 from controllers.password_hasheado import hash_password, verify_password
 
-def authenticate_user(id_empresa:int,full_name: str,puesto_trabajo, password: str, db: Session):
-    user = db.query(Users).filter(Users.full_name == full_name, Users.id_empresa == id_empresa, Users.puesto_trabajo == puesto_trabajo).first()
+def authenticate_user(full_name: str, password: str, db: Session):
+    user = db.query(Users).filter(Users.full_name == full_name).first()
     if not user:
         return False
     if not verify_password(password, user.password):
