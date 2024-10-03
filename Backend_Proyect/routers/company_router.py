@@ -29,21 +29,21 @@ def registrar_empresa(company_data: CompanyCreate, db: Session = Depends(get_db)
         raise
 
 
-@company_rutes.get("/empresa/{id_empresa}", response_model=CompanyResponse)
+@company_rutes.get("/empresa/{id}", response_model=CompanyResponse)
 def obtener_empresa(id_empresa: int, db: Session = Depends(get_db)):
     company = get_company_by_id(id_empresa, db)
     if not company:
         raise HTTPException(status_code=404, detail="Empresa no encontrada.")
     return company
 
-@company_rutes.put("/actualizar_empresa/{id_empresa}", response_model=CompanyResponse)
+@company_rutes.put("/actualizar_empresa/{id}", response_model=CompanyResponse)
 def actualizar_empresa(id_empresa: int, company_data: CompanyUpdate, db: Session = Depends(get_db)):
     company = update_company(id_empresa, company_data, db)
     if not company:
         raise HTTPException(status_code=404, detail="Empresa no encontrada.")
     return company
 
-@company_rutes.delete("/eliminar_empresa/{id_empresa}", response_model=CompanyResponse)
+@company_rutes.delete("/eliminar_empresa/{id}", response_model=CompanyResponse)
 def eliminar_empresa(id_empresa: int, db: Session = Depends(get_db)):
     company = delete_company(id_empresa, db)
     if not company:
