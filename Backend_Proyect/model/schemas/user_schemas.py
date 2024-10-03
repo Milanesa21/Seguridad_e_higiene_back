@@ -22,9 +22,7 @@ class UpdateUserRequest(BaseModel):
 
 class LoginRequest(BaseModel):
     full_name: str = Field(min_length=4,max_length=30)
-    puesto_trabajo: str = Field(min_length=3,max_length=100)
     password: str
-    id_empresa: int
 
 class UserCreate(UserBase):
     password: str

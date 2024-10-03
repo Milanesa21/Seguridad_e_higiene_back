@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 import random
+import string
 from controllers.auth_users import (
     create_user, authenticate_user, get_all_user_by_name, delete_user,
     change_password, change_job_position, get_user_by_id, get_user_email,
@@ -23,18 +24,25 @@ async def create_users(request: CreateUsersRequest, db: Session = Depends(get_db
     for i in range(request.num_usuarios):
         password = "123456"  # Contraseña predeterminada
         email = f"email{random.randint(1, 100000)}@predeterminado.com"  # Generar email único
+        
+        # Generar full_name aleatorio
+        random_name = ''.join(random.choices(string.ascii_letters + string.digits, k=8))
+        full_name = f"Usuario {random_name}"
+        
         user_data = {
-            "full_name": f"Usuario N{i+1}",
+            "full_name": full_name,
             "email": email,
             "password": password,
             "puesto_trabajo": request.puesto_trabajo,
             'id_role': 4,
             'id_empresa': request.id_empresa
         }
+        
         if user_data['puesto_trabajo'] == 'Area de seguridad':
             user_data['id_role'] = 3
         elif user_data["puesto_trabajo"] == 'Admin':
             user_data['id_role'] = 2
+        
         try:
             db_user = create_user(UserCreate(**user_data), db)
             users.append(db_user)
@@ -42,23 +50,22 @@ async def create_users(request: CreateUsersRequest, db: Session = Depends(get_db
         except Exception as e:
             print(f"Error al crear usuario: {e}")
             raise HTTPException(status_code=500, detail=f"Error al crear usuario: {e}")
-            
+    
     return {"status": "success", "users": users}
+
 
 # Ruta para iniciar sesión
 @user_routes.post('/login')
 async def login_user(login_request: LoginRequest, db: Session = Depends(get_db)):
     full_name = login_request.full_name
-    puesto_trabajo = login_request.puesto_trabajo
     password = login_request.password
-    id_empresa = login_request.id_empresa
-    user = authenticate_user(id_empresa,full_name,puesto_trabajo, password, db)
+    user = authenticate_user(full_name, password, db)
+    
     if not user:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid credentials")
     
     user_data = {
         "id": user.id,
-        'id_empresa': user.id_empresa,
     }
 
     # Generar un token JWT y devolverlo en la respuesta
@@ -198,3 +205,5 @@ async def get_messages(db: Session = Depends(get_db)):
     response = [{"user_id": message.user_id, "full_name": message.full_name, "puesto_trabajo": message.puesto_trabajo, "message": message.message} for message in messages]
 
     return response
+
+

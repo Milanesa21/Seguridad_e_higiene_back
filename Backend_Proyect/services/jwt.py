@@ -1,7 +1,6 @@
 from jwt import encode, decode, exceptions
 from datetime import datetime, timedelta
 from os import getenv
-from fastapi.responses import JSONResponse
 
 
 def exp_time(days: int, minutes: int = 0):
