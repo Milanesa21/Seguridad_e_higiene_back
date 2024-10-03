@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, responses
 from routers.user_router import user_routes
 from routers.company_router import company_rutes
 from routers.auth_router import auth_router
@@ -35,6 +35,10 @@ app.include_router(permiso_router)
 app.include_router(cloudinary_router)
 #app.include_router(IA_uniformes_router)
 #app.include_router(IA_ambiente_router)
+
+@app.get("/", include_in_schema=False)
+def redirigir_docs():
+    return responses.RedirectResponse(url="/docs")
 
 Db_insert_RP()
 
