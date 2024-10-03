@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 import random
+import string
 from controllers.auth_users import (
     create_user, authenticate_user, get_all_user_by_name, delete_user,
     change_password, change_job_position, get_user_by_id, get_user_email,
@@ -23,18 +24,25 @@ async def create_users(request: CreateUsersRequest, db: Session = Depends(get_db
     for i in range(request.num_usuarios):
         password = "123456"  # Contraseña predeterminada
         email = f"email{random.randint(1, 100000)}@predeterminado.com"  # Generar email único
+        
+        # Generar full_name aleatorio
+        random_name = ''.join(random.choices(string.ascii_letters + string.digits, k=8))
+        full_name = f"Usuario {random_name}"
+        
         user_data = {
-            "full_name": f"Usuario N{i+1}",
+            "full_name": full_name,
             "email": email,
             "password": password,
             "puesto_trabajo": request.puesto_trabajo,
             'id_role': 4,
             'id_empresa': request.id_empresa
         }
+        
         if user_data['puesto_trabajo'] == 'Area de seguridad':
             user_data['id_role'] = 3
         elif user_data["puesto_trabajo"] == 'Admin':
             user_data['id_role'] = 2
+        
         try:
             db_user = create_user(UserCreate(**user_data), db)
             users.append(db_user)
@@ -42,8 +50,9 @@ async def create_users(request: CreateUsersRequest, db: Session = Depends(get_db
         except Exception as e:
             print(f"Error al crear usuario: {e}")
             raise HTTPException(status_code=500, detail=f"Error al crear usuario: {e}")
-            
+    
     return {"status": "success", "users": users}
+
 
 # Ruta para iniciar sesión
 @user_routes.post('/login')
