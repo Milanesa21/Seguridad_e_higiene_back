@@ -5,7 +5,7 @@ import string
 from controllers.auth_users import (
     create_user, authenticate_user, get_all_user_by_name, delete_user,
     change_password, change_job_position, get_user_by_id, get_user_email,
-    change_name, get_user_by_name, change_email
+    change_name, get_user_by_name, change_email,get_all_users
 )
 from services.jwt import write_token
 from services.email_service import send_email
@@ -71,6 +71,13 @@ async def login_user(login_request: LoginRequest, db: Session = Depends(get_db))
     # Generar un token JWT y devolverlo en la respuesta
     token = write_token(user_data)
     return token
+
+@user_routes.get('/user/all')
+async def get_all_users(db: Session = Depends(get_db)):
+    users = get_all_users(db)
+    if not users:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No users found")
+    return users
 
 # Ruta para actualizar los datos del usuario (nombre, email, contraseña)
 @user_routes.patch('/user/updateData')

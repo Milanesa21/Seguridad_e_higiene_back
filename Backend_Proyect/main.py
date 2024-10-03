@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, responses
 from routers.user_router import user_routes
 from routers.company_router import company_rutes
 from routers.auth_router import auth_router
@@ -11,7 +11,7 @@ from routers.permiso_router import permiso_router
 from routers.cloudinary_routes import file_router as cloudinary_router
 #from routers.IA_uniformes_routes import router as IA_uniformes_router
 #from routers.IA_ambiente_routes import router as IA_ambiente_router
-
+from routers.email_router import email_routes
 #Para iniciar el proyecto: uvicorn main:app --reload
 app = FastAPI()
 
@@ -37,6 +37,10 @@ app.include_router(permiso_router)
 app.include_router(cloudinary_router)
 #app.include_router(IA_uniformes_router)
 #app.include_router(IA_ambiente_router)
+app.include_router(email_routes)
+@app.get("/", include_in_schema=False)
+def redirigir_docs():
+    return responses.RedirectResponse(url="/docs")
 
 Db_insert_RP()
 

@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 from os import getenv
 
 
-def exp_time(days: int):
+def exp_time(days: int, minutes: int = 0):
     date = datetime.now()
     new_date = date + timedelta(days)
     return new_date
@@ -23,3 +23,15 @@ def validate_token(token: str, output: bool = False):
         return {'message': 'Invalid token', 'status_code': 401}
     except exceptions.ExpiredSignatureError:
         return {'message': 'Expired token', 'status_code': 401}
+    
+
+def generate_reset_token(email: str):
+    token = encode(
+        payload={
+            'sub': email, 
+            'exp': exp_time(minutes=15)  # Token válido por 15 minutos
+        },
+        key=getenv('SECRET_KEY'), 
+        algorithm='HS256'
+    )
+    return token
