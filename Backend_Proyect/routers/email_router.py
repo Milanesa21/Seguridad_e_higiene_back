@@ -10,19 +10,20 @@ from controllers.auth_users import change_password
 email_routes = APIRouter(prefix='/email', tags=['Email'])
 
 
-@email_routes.post('/reperacion')
+@email_routes.post('/reperacion/')
 async def email_recuperacio(email: str, db:Session = Depends(get_db)):
-    user = get_user_email(email)
+
+    user = get_user_email(email,db)
     if not user:
-        return None
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+        
     temporal_token = generate_reset_token(email)
-    link_temporal = f"'http://127.0.0.1:8000/reset-password/{temporal_token}"
 
     send_email(
         email=email,
         full_name=user.full_name,
-        reset_token=temporal_token
-    )
+        temporal_token=temporal_token
+        )
     return {"message": "Correo de recuperación enviado exitosamente"}
 
 

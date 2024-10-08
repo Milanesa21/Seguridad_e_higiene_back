@@ -59,6 +59,8 @@ async def create_users(request: CreateUsersRequest, db: Session = Depends(get_db
 async def login_user(login_request: LoginRequest, db: Session = Depends(get_db)):
     full_name = login_request.full_name
     password = login_request.password
+    print(full_name,password)
+    print(login_request)
     user = authenticate_user(full_name, password, db)
     
     if not user:
