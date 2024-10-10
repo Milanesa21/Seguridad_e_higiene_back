@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 from os import getenv
 
 
-def exp_time(days: int, minutes: int = 0):
+def exp_time(days: int=0, minutes: int = 0):
     date = datetime.now()
     new_date = date + timedelta(days)
     return new_date

@@ -9,7 +9,7 @@ from services.jwt import write_token
 # Definición del APIRouter con prefijo y etiquetas
 company_rutes = APIRouter(prefix='/empresas', tags=['CRUD de Empresas'])
 
-@company_rutes.post("/registrar_empresa", response_model=CompanyResponse)
+@company_rutes.post("/registrar", response_model=CompanyResponse)
 def registrar_empresa(company_data: CompanyCreate, db: Session = Depends(get_db)):
     print("Datos recibidos:", company_data.model_dump())  # Agregar para depuración
     if company_data.id_superuser is None:
@@ -30,27 +30,28 @@ def registrar_empresa(company_data: CompanyCreate, db: Session = Depends(get_db)
 
 
 @company_rutes.get("/empresa/{id}", response_model=CompanyResponse)
-def obtener_empresa(id_empresa: int, db: Session = Depends(get_db)):
-    company = get_company_by_id(id_empresa, db)
+def obtener_empresa(id: int, db: Session = Depends(get_db)):
+    print('AAAAA',id)
+    company = get_company_by_id(id, db)
     if not company:
         raise HTTPException(status_code=404, detail="Empresa no encontrada.")
     return company
 
-@company_rutes.put("/actualizar_empresa/{id}", response_model=CompanyResponse)
-def actualizar_empresa(id_empresa: int, company_data: CompanyUpdate, db: Session = Depends(get_db)):
-    company = update_company(id_empresa, company_data, db)
+@company_rutes.put("/{id}", response_model=CompanyResponse)
+def actualizar_empresa(id: int, company_data: CompanyUpdate, db: Session = Depends(get_db)):
+    company = update_company(id, company_data, db)
     if not company:
         raise HTTPException(status_code=404, detail="Empresa no encontrada.")
     return company
 
-@company_rutes.delete("/eliminar_empresa/{id}", response_model=CompanyResponse)
+@company_rutes.delete("/{id}", response_model=CompanyResponse)
 def eliminar_empresa(id_empresa: int, db: Session = Depends(get_db)):
     company = delete_company(id_empresa, db)
     if not company:
         raise HTTPException(status_code=404, detail="Empresa no encontrada.")
     return company
 
-@company_rutes.post("/autenticar_empresa", response_model=CompanyResponse)
+@company_rutes.post("/autenticar", response_model=CompanyResponse)
 def autenticar_empresa(correo_jefe: str, password: str, db: Session = Depends(get_db)):
     company = authenticate_company(correo_jefe, password, db)
     if not company:
@@ -68,7 +69,7 @@ async def login_company(login_request: CompanyRequest, db: Session = Depends(get
     if not company:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid credentials")
     company_data = {
-        "id": company.id_empresa,
+        "id_empresa": company.id_empresa,
     }
 
     # Generar un token JWT y devolverlo en la respuesta

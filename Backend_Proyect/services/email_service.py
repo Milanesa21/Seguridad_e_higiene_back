@@ -8,7 +8,7 @@ load_dotenv()
 
 def send_email(email, full_name, temporal_token):
     # URL con el token incluido
-    link = f"http://127.0.0.1:8000/reset-password/{temporal_token}"
+    link = f"http://localhost:5173/PasswordChange/{temporal_token}"
 
     # Formato HTML para el correo
     html = f"""
@@ -17,7 +17,8 @@ def send_email(email, full_name, temporal_token):
         <p>Hola {full_name},</p>
         <p>Recibimos una solicitud para cambiar tu contraseña.</p>
         <p>Si fuiste tú, puedes cambiar tu contraseña usando el siguiente enlace:</p>
-        <a href="{link}">Cambiar Contraseña</a>
+        <p><a href="{link}">Cambiar Contraseña</a></p>
+        <p>O copia y pega este enlace en tu navegador: {link}</p>
         <p>Si no fuiste tú, por favor ignora este mensaje.</p>
         <br>
         <p>Saludos,</p>
@@ -25,6 +26,7 @@ def send_email(email, full_name, temporal_token):
     </body>
     </html>
     """
+
 
     # Parte de texto plano
     text = f"""\
@@ -54,7 +56,9 @@ def send_email(email, full_name, temporal_token):
 
         # Envío del correo
         server.sendmail(os.getenv('EMAIL_SENDER'), email, msg.as_string())
-        print(f"Correo enviado a {email}")
+        print("Enviando correo desde:", os.getenv('EMAIL_SENDER'))
+        print("Enviando correo a:", email)
+
     except Exception as e:
         print(f"Error al enviar el correo: {e}")
     finally:

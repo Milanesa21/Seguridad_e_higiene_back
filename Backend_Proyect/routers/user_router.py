@@ -59,13 +59,15 @@ async def create_users(request: CreateUsersRequest, db: Session = Depends(get_db
 async def login_user(login_request: LoginRequest, db: Session = Depends(get_db)):
     full_name = login_request.full_name
     password = login_request.password
+    print(full_name,password)
+    print(login_request)
     user = authenticate_user(full_name, password, db)
     
     if not user:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid credentials")
     
     user_data = {
-        "id": user.id,
+        "id_user": user.id,
     }
 
     # Generar un token JWT y devolverlo en la respuesta
@@ -106,7 +108,7 @@ async def update_user_data(request: UpdateUserRequest, db: Session = Depends(get
     return {"message": "User data updated successfully"}
 
 # Ruta para obtener un usuario por su ID
-@user_routes.get('/user/id/{id}')
+@user_routes.get('/user/{id}')
 async def get_user_id(id: int, db: Session = Depends(get_db)):
     user = get_user_by_id(id, db)
     if not user:
