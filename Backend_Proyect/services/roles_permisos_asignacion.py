@@ -5,31 +5,23 @@ from sqlalchemy.orm import Session
 from controllers.rol_permiso_controllers import agregar_permisos_iniciales, crear_super_admin
 from controllers.company_controllers import crear_empresa_inicial
 
-
-
 def roles_insert(db: Session):
-
     exite_rol = db.query(Rol).all()
-    exite_rol_nombre={rol.nombre_rol for rol in exite_rol}
-
+    exite_rol_nombre = {rol.nombre_rol for rol in exite_rol}
     roles = [
         Rol(nombre_rol="super_admin", descripcion="Para la creacion de empresas"),
         Rol(nombre_rol="admin", descripcion="Para la creacion de usuarios"),
         Rol(nombre_rol="segurity", descripcion="Para la creacion de alertas"),
         Rol(nombre_rol="user", descripcion="Para la creacion de alertas"),
     ]
-
     nuevos_roles = [rol for rol in roles if rol.nombre_rol not in exite_rol_nombre]
-
     if nuevos_roles:
         db.add_all(nuevos_roles)
         db.commit()
 
 def permisos_insert(db: Session):
-
     exite_permiso = db.query(Permisos).all()
-    exite_permiso_nombre={permiso.nombre_permiso for permiso in exite_permiso}
-
+    exite_permiso_nombre = {permiso.nombre_permiso for permiso in exite_permiso}
     permisos = [
         Permisos(nombre_permiso="crear_empresa", descripcion="Permite la creacion de empresas"),
         Permisos(nombre_permiso="eliminar_empresa", descripcion="Permite la eliminacion de empresas"),
@@ -44,9 +36,7 @@ def permisos_insert(db: Session):
         Permisos(nombre_permiso="lee_registros", descripcion="Permite la lectura de registros"),
         Permisos(nombre_permiso="alertas", descripcion="Permite la creacion de alertas"),
     ]
-
     nuevos_permisos = [permiso for permiso in permisos if permiso.nombre_permiso not in exite_permiso_nombre]
-
     if nuevos_permisos:
         db.add_all(nuevos_permisos)
         db.commit()
@@ -55,41 +45,15 @@ def Db_insert_RP():
     db: Session = next(get_db())
     try:
         roles_insert(db)
-    except:
-        db.rollback()
-        raise ValueError("Error al insertar roles")
-    finally:
-        db.close()
-
-    try:
         permisos_insert(db)
-    except:
-        db.rollback()
-        raise ValueError("Error al insertar permisos")
-    finally:
-        db.close()
-
-
-    try:
         agregar_permisos_iniciales(db)
-    except:
-        db.rollback()
-        raise ValueError("Error al asignar permisos a roles")
-    finally:
-        db.close()
-
-    try:
         crear_empresa_inicial(db)
-    except:
+        crear_super_admin(db)
+    except Exception as e:
         db.rollback()
-        raise ValueError("Error al crear empresa inicial")
+        raise ValueError(f"Error durante la inicialización de la base de datos: {str(e)}")
     finally:
         db.close()
 
-    try:
-        crear_super_admin(db)
-    except:
-        db.rollback()
-        raise ValueError("Error al crear super admin")
-    finally:
-        db.close()
+if __name__ == "__main__":
+    Db_insert_RP()
