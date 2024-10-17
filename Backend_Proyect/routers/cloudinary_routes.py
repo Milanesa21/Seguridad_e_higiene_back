@@ -40,7 +40,7 @@ async def upload_file(file: UploadFile = File(...),
         raise HTTPException(status_code=500, detail="Error uploading file")
 
 # Ruta para listar todos los archivos
-@file_router.get("/images/{id}")
+@file_router.get("/images/")
 async def list_images(
     id_empresa: int = Query(..., description="ID de la empresa"),
     db: Session = Depends(get_db)
