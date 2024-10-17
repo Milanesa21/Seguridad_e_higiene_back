@@ -23,6 +23,7 @@ async def upload_file(file: UploadFile = File(...),
                     id_empresa: int= Query(..., description="Id de la empresa"),
                     db: Session = Depends(get_db)):
     try:
+        print('Lo que se manda del front',id_empresa)
         # Subir archivo a Cloudinary
         result = cloudinary.uploader.upload(file.file, resource_type='auto')
         public_id = result['public_id']
@@ -40,7 +41,7 @@ async def upload_file(file: UploadFile = File(...),
         raise HTTPException(status_code=500, detail="Error uploading file")
 
 # Ruta para listar todos los archivos
-@file_router.get("/images/{id}")
+@file_router.get("/images/")
 async def list_images(
     id_empresa: int = Query(..., description="ID de la empresa"),
     db: Session = Depends(get_db)
@@ -48,6 +49,8 @@ async def list_images(
     try:
         # Consultar y ordenar los archivos por fecha de subida (más reciente primero)
         files = db.query(CloudinaryModel).filter(CloudinaryModel.id_empresa == id_empresa).order_by(CloudinaryModel.uploaded_at.desc()).all()
+        if not files:
+            return JSONResponse(content={"message": "No hay imágenes cargadas."}, status_code=200)
 
         # Extraer los detalles necesarios y convertir `uploaded_at` a cadena
         image_list = [
@@ -60,9 +63,6 @@ async def list_images(
             for file in files
         ]
 
-        if not image_list:
-            raise HTTPException(status_code=404, detail="No se han encontrado imagenes")
-        
         return JSONResponse(content={"images": image_list})
     except Exception as e:
         print(f"Error retrieving images: {e}")
