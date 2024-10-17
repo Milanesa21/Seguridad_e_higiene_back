@@ -11,7 +11,7 @@ app = FastAPI()
 # Generador para transmitir respuestas parciales letra por letra
 def model_output_generator(full_prompt):
     process = subprocess.Popen(
-        'ollama run Jorgito',
+        'ollama run Jorgito2',
         stdin=subprocess.PIPE,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
