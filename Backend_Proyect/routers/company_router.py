@@ -38,7 +38,6 @@ def registrar_empresa(company_data: CompanyCreate, db: Session = Depends(get_db)
 
 @company_rutes.get("/empresa/{id}", response_model=CompanyResponse)
 def obtener_empresa(id: int, db: Session = Depends(get_db)):
-    print('AAAAA',id)
     company = get_company_by_id(id, db)
     if not company:
         raise HTTPException(status_code=404, detail="Empresa no encontrada.")

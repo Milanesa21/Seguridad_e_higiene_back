@@ -61,6 +61,7 @@ def crear_empresa_inicial(db: Session):
 
 def get_company_by_id(id_empresa: int, db: Session) -> CompanyResponse:
     db_company = db.query(Company).filter(Company.id_empresa == id_empresa).first()
+    print(db_company)
     if not db_company:
         return None
     return CompanyResponse.from_orm(db_company)
