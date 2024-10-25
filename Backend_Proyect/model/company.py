@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, Integer, String, ForeignKey
 from .Agropecuario_model import Agropecuario
 from dataBase.db import Base
 from sqlalchemy.orm import relationship, Mapped
@@ -13,6 +13,7 @@ class Company(Base):
     correo_jefe = Column(String, unique=True, index=True, nullable=False)
     numero_jefe = Column(String, nullable=False)
     password = Column(String, nullable=False)
+    id_role = Column(Integer, ForeignKey("roles.id"))
 
     # Relación uno a muchos con la tabla de usuarios
     users = relationship("Users", back_populates="company")
@@ -22,3 +23,6 @@ class Company(Base):
 
     # Relación uno a muchos con la tabla de agropecuario
     inspecciones: Mapped[List[Agropecuario]] = relationship("Agropecuario", back_populates="company")
+
+
+    rol = relationship("Rol", back_populates="companies")

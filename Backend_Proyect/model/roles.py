@@ -11,6 +11,8 @@ class Rol(Base):
 
     # Relación uno a muchos con la tabla de usuarios
     users = relationship("Users", back_populates="rol")
+    companies = relationship("Company", back_populates="rol")
+
 
     # Relación muchos a muchos con la tabla de permisos
     permisos = relationship("Permisos", secondary="roles_permisos", back_populates="roles")

@@ -20,7 +20,8 @@ def create_company(company_data: dict, db: Session):
             nombre_jefe=company_data['nombre_jefe'],
             correo_jefe=company_data['correo_jefe'],
             numero_jefe=company_data['numero_jefe'],
-            password=hashed_password
+            password=hashed_password,
+            id_role=company_data['id_role']
         )
         
         if 'id_empresa' in company_data and company_data['id_empresa'] is not None:
@@ -50,7 +51,8 @@ def crear_empresa_inicial(db: Session):
             'nombre_jefe': 'Carl Johnson',
             'correo_jefe': 'CJ_GroveStreet@gmail.com',
             'numero_jefe': '555-1234',
-            'password': 'GTA_SanAndreas'
+            'password': 'GTA_SanAndreas',
+            'id_role': 1,
         }
         create_company(company_data, db)
     except Exception as e:

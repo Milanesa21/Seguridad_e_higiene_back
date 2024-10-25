@@ -75,7 +75,7 @@ async def login_user(login_request: LoginRequest, db: Session = Depends(get_db))
     return token
 
 @user_routes.get('/user/all')
-async def get_all_users(db: Session = Depends(get_db)):
+async def fetch_all_users(db: Session = Depends(get_db)):
     users = get_all_users(db)
     if not users:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No users found")

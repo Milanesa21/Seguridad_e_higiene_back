@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from controllers.company_controllers import create_company, get_company_by_id, update_company, delete_company, authenticate_company, get_companies
 from controllers.auth_users import get_user_by_id
-from model.schemas.company_schemas import CompanyBase, CompanyCreate, CompanyRequest, CompanyUpdate, CompanyResponse
+from model.schemas.company_schemas import CompanyCreate, CompanyRequest, CompanyUpdate, CompanyResponse
 from dataBase.db import get_db
 from services.jwt import write_token
 
@@ -11,22 +11,29 @@ company_rutes = APIRouter(prefix='/empresas', tags=['CRUD de Empresas'])
 
 @company_rutes.post("/registrar", response_model=CompanyResponse)
 def registrar_empresa(company_data: CompanyCreate, db: Session = Depends(get_db)):
-    print("Datos recibidos:", company_data.model_dump())  # Agregar para depuración
+    print("Datos recibidos:", company_data.model_dump())  # Para depuración
     if company_data.id_superuser is None:
         raise HTTPException(status_code=400, detail="Permisos es requerido.")
+    
     if company_data.id_superuser:
         user = get_user_by_id(company_data.id_superuser, db)
         if user is None:
             raise HTTPException(status_code=400, detail="Usuario no encontrado.")
         if user['rol']['nombre'] != "super_admin":
-            raise HTTPException(status_code=400, detail="El usuario no tiene autorizacion para registrar")
+            raise HTTPException(status_code=400, detail="El usuario no tiene autorización para registrar")
         if user['rol']['permisos'][0] != "crear_empresa":
             raise HTTPException(status_code=400, detail="El usuario no tiene permisos para registrar")
+    
+    # Asignar el id_role de empresa a 2
+    company_data_dict = company_data.model_dump()
+    company_data_dict['id_role'] = 2
+    
     try:
-        return create_company(company_data.model_dump(), db)
+        return create_company(company_data_dict, db)
     except HTTPException as e:
-        print("Error al registrar empresa:", str(e))  # Agregar para depuración
+        print("Error al registrar empresa:", str(e))  # Para depuración
         raise
+
 
 
 @company_rutes.get("/empresa/{id}", response_model=CompanyResponse)
