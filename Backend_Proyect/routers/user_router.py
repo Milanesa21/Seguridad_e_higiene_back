@@ -5,7 +5,7 @@ import string
 from controllers.auth_users import (
     create_user, authenticate_user, get_all_user_by_name, delete_user,
     change_password, change_job_position, get_user_by_id, get_user_email,
-    change_name, get_user_by_name, change_email,get_all_users
+    change_name, get_user_by_name, change_email,get_all_users, get_all_user_by_id_empresa
 )
 from services.jwt import write_token
 from services.email_service import send_email
@@ -114,6 +114,16 @@ async def get_user_id(id: int, db: Session = Depends(get_db)):
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
     return {"message":"Usuario encontrado","Usuario":user}
+
+
+# Ruta para obtener todos los usuarios por el ID de la empresa
+@user_routes.get('/user/empresa/{id_empresa}')
+async def get_all_user_id_empresa(id_empresa: int, db: Session = Depends(get_db)):
+    users = get_all_user_by_id_empresa(id_empresa, db)
+    if isinstance(users, dict) and "detail" in users:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=users["detail"])
+    return {"message": "Usuarios encontrados", "usuarios": users}
+
 
 # Ruta para obtener un usuario por su nombre
 @user_routes.get('/user/name/{full_name}')

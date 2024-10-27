@@ -63,6 +63,8 @@ def get_user_by_id(id: int, db: Session):
     except Exception as e:
         return {"detail": f"Error: {e}"}
 
+def get_all_user_by_id_empresa(id_empresa: int, db: Session):
+    return db.query(Users).filter(Users.id_empresa == id_empresa).all()
 
 def get_all_user_by_name(full_name: str, db: Session):
     return db.query(Users).filter(Users.full_name == full_name).all()
