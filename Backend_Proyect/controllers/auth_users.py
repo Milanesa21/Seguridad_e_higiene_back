@@ -136,6 +136,7 @@ def get_all_users(db: Session):
                 "full_name": user.full_name,
                 "puesto_trabajo": user.puesto_trabajo,
                 "email": user.email,
+                'empresa_id': user.id_empresa,
                 "rol": {
                     "id": user.rol.id if user.rol else None,
                     "nombre": user.rol.nombre_rol if user.rol else None,
