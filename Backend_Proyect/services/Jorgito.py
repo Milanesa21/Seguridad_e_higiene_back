@@ -9,6 +9,7 @@ from langchain_ollama import OllamaLLM
 from transformers import AutoTokenizer, AutoModel
 import torch
 import os
+import glob
 import numpy as np
 
 class Query(BaseModel):
@@ -50,20 +51,25 @@ chain = prompt_template | llm
 # Variables globales para almacenar el vectorstore
 vectorstore = None
 
-# Verificación y carga del archivo PDF
-pdf_path = "/home/diego/Escritorio/Seguridad_e_higiene_back/Backend_Proyect/services/context/Normas IRAM 10005-2407.pdf"
+# Directorio donde se almacenan los archivos PDF
+pdf_directory = "/home/diego/Escritorio/Seguridad_e_higiene_back/Backend_Proyect/services/context/"
 
-if os.path.exists(pdf_path):
-    print("contexto añadido correctamente")
-    # Cargar el PDF
-    pdf_loader = PyPDFLoader(pdf_path)
-    documents = pdf_loader.load()
+# Verificación y carga de todos los archivos PDF en el directorio
+pdf_files = glob.glob(os.path.join(pdf_directory, "*.pdf"))
+
+if pdf_files:
+    print("Contexto añadido correctamente. Archivos encontrados:", pdf_files)
     
-    # Crear el vectorstore directamente
+    documents = []
+    for pdf_file in pdf_files:
+        pdf_loader = PyPDFLoader(pdf_file)
+        documents.extend(pdf_loader.load())
+    
+    # Crear el vectorstore con todos los documentos cargados
     embedding_model = CustomHuggingFaceEmbeddings()
     vectorstore = FAISS.from_documents(documents, embedding_model)
 else:
-    print("contexto no encontrado")
+    print("No se encontraron archivos PDF en el directorio especificado.")
 
 async def model_output_generator(full_prompt):
     try:
