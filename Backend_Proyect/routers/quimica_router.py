@@ -9,6 +9,25 @@ from sqlalchemy import func
 
 quimica_router = APIRouter(prefix='/Quimica', tags=['Quimica'])
 
+
+
+@quimica_router.post('/create/', response_model=QuimicaResponse)
+async def create_inspeccion(
+    checklist_data: dict,
+    id_empresa: int,
+    db: Session = Depends(get_db)
+):
+    try:
+        db_inspeccion = Quimica(**checklist_data, fecha=datetime.now(), id_empresa=id_empresa)
+        db.add(db_inspeccion)
+        db.commit()
+        db.refresh(db_inspeccion)
+        return db_inspeccion
+    except Exception as e:
+        print(f"Error: {e}")
+        raise HTTPException(status_code=500, detail="Error al crear la inspección")
+
+
 @quimica_router.get('/estadisticas/{id_empresa}')
 async def get_estadisticas(
     id_empresa: int,
