@@ -5,7 +5,7 @@ from routers.auth_router import auth_router
 from fastapi.middleware.cors import CORSMiddleware
 import init_db
 from services.Jorgito import app as jorgito_app
-from controllers.socket_controllers import router as socket_router  # Importa el router de WebSocket
+from controllers.socket_controllers import router as socket_router  
 from services.roles_permisos_asignacion import Db_insert_RP
 from routers.permiso_router import permiso_router
 from routers.cloudinary_routes import file_router as cloudinary_router
