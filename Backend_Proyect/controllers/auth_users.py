@@ -69,6 +69,9 @@ def get_all_user_by_id_empresa(id_empresa: int, db: Session):
 def get_all_user_by_name(full_name: str, db: Session):
     return db.query(Users).filter(Users.full_name == full_name).all()
 
+def get_all_user_by_puesto_trabajo(puesto_trabajo: str, db: Session):
+    return db.query(Users).filter(Users.puesto_trabajo == puesto_trabajo).all()
+
 def get_user_by_name(full_name: str, db: Session):
     return db.query(Users).filter(Users.full_name == full_name).first()
 

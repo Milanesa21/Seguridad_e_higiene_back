@@ -5,7 +5,7 @@ import string
 from controllers.auth_users import (
     create_user, authenticate_user, get_all_user_by_name, delete_user,
     change_password, change_job_position, get_user_by_id, get_user_email,
-    change_name, get_user_by_name, change_email,get_all_users, get_all_user_by_id_empresa
+    change_name, get_user_by_name, change_email,get_all_users, get_all_user_by_id_empresa, get_all_user_by_puesto_trabajo
 )
 from services.jwt import write_token
 from services.email_service import send_email
@@ -148,6 +148,16 @@ async def get_user_by_email(email: str, db: Session = Depends(get_db)):
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
     return {"message":"Usuario encontrado","Usuario":user}
+
+
+#Ruta para obtener un usuario por su puesto de trabajo
+@user_routes.get('/user/puesto/{puesto_trabajo}')
+async def get_user_by_puesto_trabajo(puesto_trabajo: str, db: Session = Depends(get_db)):
+    user = get_all_user_by_puesto_trabajo(puesto_trabajo, db)
+    if not user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+    return {"message":"Usuario encontrado","Usuario":user}
+
 
 # Ruta para eliminar un usuario
 @user_routes.delete('/user/delete/{full_name}')
