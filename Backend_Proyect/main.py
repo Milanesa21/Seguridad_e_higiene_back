@@ -13,6 +13,10 @@ from routers.cloudinary_routes import file_router as cloudinary_router
 #from routers.IA_ambiente_routes import router as IA_ambiente_router
 from routers.email_router import email_routes
 from routers.agropecuario_routes import inspeccion_router
+##from routers.construccion_router import construccion_router
+##from routers.electricidad_router import electricidad_router
+##from routers.quimica_router import quimica_router
+from routers.pdf_files import router as pdf_router
 
 
 #Para iniciar el proyecto: uvicorn main:app --reload
@@ -41,6 +45,10 @@ app.include_router(cloudinary_router)
 #app.include_router(IA_uniformes_router)
 #app.include_router(IA_ambiente_router)
 app.include_router(inspeccion_router)
+##app.include_router(construccion_router)
+##app.include_router(electricidad_router)
+##app.include_router(quimica_router)
+app.include_router(pdf_router)
 
 
 

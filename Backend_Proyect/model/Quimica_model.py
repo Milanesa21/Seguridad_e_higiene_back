@@ -32,7 +32,7 @@ class Quimica(Base):
     procedimientosEliminacionCorrectos = Column(Boolean)
 
     id_empresa = Column(Integer, ForeignKey("companies.id_empresa"))
-    company = relationship("Company", back_populates="inspeccionesQuimica")
+    ##company = relationship("Company", back_populates="inspeccionesQuimica")
 
 class QuimicaCreate(BaseModel):
     usoBataLaboratorio: bool

@@ -9,6 +9,21 @@ from sqlalchemy import func
 
 construccion_router = APIRouter(prefix='/Construccion', tags=['Construccion'])
 
+
+@construccion_router.post('/guardar_checklist')
+async def guardar_checklist(data: ConstruccionCreate, db: Session = Depends(get_db)):
+    try:
+        nuevo_registro = Construccion(**data.dict(), fecha=datetime.utcnow())
+        db.add(nuevo_registro)
+        db.commit()
+        db.refresh(nuevo_registro)
+        return {"mensaje": "Checklist guardado exitosamente", "data": nuevo_registro}
+    except Exception as e:
+        print(f"Error al guardar el checklist: {e}")
+        raise HTTPException(status_code=500, detail="Error al guardar el checklist")
+
+
+# Ruta para obtener todos los registros de la tabla Construccion
 @construccion_router.get('/estadisticas/{id_empresa}')
 async def get_estadisticas(
     id_empresa: int,
@@ -33,6 +48,8 @@ async def get_estadisticas(
         print(f"Error: {e}")
         raise HTTPException(status_code=500, detail="Error al obtener las estadísticas")
 
+
+# Ruta para obtener los promedios de los campos de cada sección
 @construccion_router.get('/estadisticas_por_seccion/{id_empresa}')
 async def get_estadisticas_por_seccion(
     id_empresa: int,
