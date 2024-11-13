@@ -1,4 +1,3 @@
-# quimica_routes.py
 from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.orm import Session
 from dataBase.db import get_db

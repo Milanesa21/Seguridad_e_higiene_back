@@ -1,4 +1,7 @@
 from sqlalchemy import Column, Integer, String, ForeignKey
+from model.Construccion_model import Construccion
+from model.Electriciad_model import Electricidad
+from model.Quimica_model import Quimica
 from .Agropecuario_model import Agropecuario
 from dataBase.db import Base
 from sqlalchemy.orm import relationship, Mapped
@@ -22,7 +25,9 @@ class Company(Base):
     files = relationship("File", back_populates="company")
 
     # Relación uno a muchos con la tabla de agropecuario
-    inspecciones: Mapped[List[Agropecuario]] = relationship("Agropecuario", back_populates="company")
-
+    inspecciones_agropecuario: Mapped[List[Agropecuario]] = relationship("Agropecuario", back_populates="company")
+    inspecciones_quimica: Mapped[List[Quimica]] = relationship("Quimica", back_populates="company")
+    inspecciones_electricidad: Mapped[List[Electricidad]] = relationship("Electricidad", back_populates="company")
+    inspecciones_construccion: Mapped[List[Construccion]] = relationship("Construccion", back_populates="company")
 
     rol = relationship("Rol", back_populates="companies")

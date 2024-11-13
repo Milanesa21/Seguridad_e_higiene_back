@@ -1,9 +1,7 @@
-# construccion_routes.py
 from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.orm import Session
 from dataBase.db import get_db
-from model.Construccion_model import Construccion, ConstruccionCreate, ConstruccionResponse
-from typing import List
+from model.Construccion_model import Construccion, ConstruccionCreate
 from datetime import datetime
 from sqlalchemy import func
 

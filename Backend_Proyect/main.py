@@ -4,7 +4,7 @@ from routers.company_router import company_rutes
 from routers.auth_router import auth_router
 from fastapi.middleware.cors import CORSMiddleware
 import init_db
-from services.Jorgito import app as jorgito_app
+#from services.Jorgito import app as jorgito_app
 from controllers.socket_controllers import router as socket_router  
 from services.roles_permisos_asignacion import Db_insert_RP
 from routers.permiso_router import permiso_router
@@ -13,9 +13,9 @@ from routers.cloudinary_routes import file_router as cloudinary_router
 #from routers.IA_ambiente_routes import router as IA_ambiente_router
 from routers.email_router import email_routes
 from routers.agropecuario_routes import inspeccion_router
-##from routers.construccion_router import construccion_router
-##from routers.electricidad_router import electricidad_router
-##from routers.quimica_router import quimica_router
+from routers.construccion_router import construccion_router
+from routers.electricidad_router import electricidad_router
+from routers.quimica_router import quimica_router
 from routers.pdf_files import router as pdf_router
 
 
@@ -37,7 +37,7 @@ app.add_middleware(
 
 app.include_router(user_routes)
 app.include_router(auth_router)
-app.mount("/jorgito", jorgito_app)
+#app.mount("/jorgito", jorgito_app)
 app.include_router(company_rutes)
 app.include_router(socket_router)  
 app.include_router(permiso_router)
@@ -45,9 +45,9 @@ app.include_router(cloudinary_router)
 #app.include_router(IA_uniformes_router)
 #app.include_router(IA_ambiente_router)
 app.include_router(inspeccion_router)
-##app.include_router(construccion_router)
-##app.include_router(electricidad_router)
-##app.include_router(quimica_router)
+app.include_router(construccion_router)
+app.include_router(electricidad_router)
+app.include_router(quimica_router)
 app.include_router(pdf_router)
 
 

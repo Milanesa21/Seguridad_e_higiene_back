@@ -30,7 +30,7 @@ class Electricidad(Base):
     equipoPruebasCalibrado = Column(Boolean)
 
     id_empresa = Column(Integer, ForeignKey("companies.id_empresa"))
-    company = relationship("Company", back_populates="inspeccionesElectricidad")
+    company = relationship("Company", back_populates="inspecciones_electricidad")
 
 class ElectricidadCreate(BaseModel):
     inspeccionEquipos: bool
