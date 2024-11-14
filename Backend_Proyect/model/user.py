@@ -2,7 +2,6 @@ from sqlalchemy import Column, Integer, String, ForeignKey
 from sqlalchemy.orm import relationship
 from dataBase.db import Base
 
-
 class Users(Base):
     __tablename__ = "users"
 
@@ -15,6 +14,7 @@ class Users(Base):
     # Relación uno a muchos con la tabla de roles
     id_role = Column(Integer, ForeignKey("roles.id"))
     rol = relationship("Rol", back_populates="users")
+    
     # Relación uno a muchos con la tabla de mensajes de alerta
     alert_messages = relationship("AlertMessage", back_populates="user")
 
@@ -25,5 +25,11 @@ class Users(Base):
     id_empresa = Column(Integer, ForeignKey("companies.id_empresa"))
     company = relationship("Company", back_populates="users")
 
+    # Nueva relación para los archivos PDF subidos por el usuario
+    pdf_files = relationship("PDFFile", back_populates="user")
+
     def change_password(self, new_password: str):
         self.password = new_password
+
+# Importar al final para evitar importaciones circulares
+from model.pdf_files import PDFFile

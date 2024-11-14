@@ -35,7 +35,7 @@ class Agropecuario(Base):
 
 
 # Relación uno a muchos con la tabla de empresas
-    company = relationship("Company", back_populates="inspecciones")
+    company = relationship("Company", back_populates="inspecciones_agropecuario")
 
 class InspeccionCreate(BaseModel):
     riegoAdecuado: bool

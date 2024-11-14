@@ -33,7 +33,8 @@ class Construccion(Base):
     ventilacionAdecuada = Column(Boolean)
 
     id_empresa = Column(Integer, ForeignKey("companies.id_empresa"))
-    company = relationship("Company", back_populates="inspeccionesConstruccion")
+    company = relationship("Company", back_populates="inspecciones_construccion")
+
 
 class ConstruccionCreate(BaseModel):
     # Campos para crear registros
