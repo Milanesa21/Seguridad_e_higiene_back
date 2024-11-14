@@ -1,161 +1,198 @@
-"""from sentence_transformers import SentenceTransformer
-from langchain.prompts import PromptTemplate
 from fastapi import FastAPI, HTTPException, UploadFile, File
-from fastapi.responses import JSONResponse
-from langchain_community.document_loaders import PyMuPDFLoader
-from langchain_text_splitters import RecursiveCharacterTextSplitter
 from pydantic import BaseModel
+from fastapi.responses import StreamingResponse, JSONResponse
+from langchain.prompts import PromptTemplate
+from langchain_community.document_loaders import PyMuPDFLoader
+from langchain_chroma import Chroma
+from langchain_ollama import OllamaLLM
+from langchain_text_splitters import RecursiveCharacterTextSplitter
+from langchain_community.embeddings.fastembed import FastEmbedEmbeddings
+from langchain.chains import RetrievalQA
 import os
 import shutil
 import glob
-from sklearn.metrics.pairwise import cosine_similarity
-import numpy as np
-import time
+
+class Query(BaseModel):
+    input_text: str
 
 app = FastAPI()
 
-# Inicializar el modelo de embeddings de sentence-transformers
-embed_model = SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')
+# Configuración del modelo LLM
+llm = OllamaLLM(model="llama3.2:1b") 
 
-# Prompt template para la IA
-custom_prompt_template = """ 
-#Usa el contexto más relevante para responder la pregunta.
-#Contexto: {context}
-#Pregunta: {question}
+# Definir un prompt detallado
+custom_prompt_template = """
+Usa la siguiente información para responder a la pregunta del usuario.
+Si no puedes encontrar la respuesta, indica que no sabes la respuesta.
+Para indicar que no sabes la respuesta, escribe "No sé la respuesta a esa pregunta, puedes brindarme un pdf para que te pueda responder a eso".
 
-#Tus respuestas deben ser breves, pero explicativas para lo que se te esta preguntando
+Solo contesta en español, y trata de ser lo más preciso posible.
 
-#Respuesta en español:
+Si el contexto es muy largo, puedes resumirlo.
+
+Si el contexto esta en un idioma que no sea español, tradúcelo antes de contestar.
+
+Contexto: {context}
+Pregunta: {question}
 """
 prompt_template = PromptTemplate(
     input_variables=["context", "question"],
     template=custom_prompt_template
 )
 
-# Memoria local para almacenar los contextos
-memory_context = []
+# Variables globales para almacenar el vectorstore
+pdf_directory = "/home/diego/Escritorio/Seguridad_e_higiene_back/Backend_Proyect/services/context/"
+persist_db = "/home/diego/chroma_db_dir"
+collection_name = "chroma_collection"
+embed_model = FastEmbedEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+vectorstore = None
+retriever = None
+qa_chain = None
 
-# Clase para la consulta del usuario
-class Query(BaseModel):
-    input_text: str
+# Función para inicializar o actualizar ChromaDB
+def initialize_chroma_db():
+    global vectorstore, retriever, qa_chain  # Declarar antes de usar
 
-# Función para agregar documentos al contexto
-def update_memory_context(documents):
-    global memory_context
-    memory_context.extend(documents)
+    # Cargar la base de datos persistente si existe
+    if os.path.exists(persist_db):
+        print("Cargando ChromaDB existente...")
+        vectorstore = Chroma(
+            embedding_function=embed_model,
+            persist_directory=persist_db,
+            collection_name=collection_name
+        )
+    else:
+        print("No se encontró una base de datos persistente. Creando una nueva...")
+        pdf_files = glob.glob(os.path.join(pdf_directory, "*.pdf"))
 
-# Función optimizada para cargar y actualizar el contexto desde archivos PDF
-def load_context_from_pdfs():
-    global memory_context
-    memory_context = []  # Reiniciar el contexto al cargar
+        if pdf_files:
+            documents = []
+            for pdf_file in pdf_files:
+                loader = PyMuPDFLoader(pdf_file)
+                documents.extend(loader.load())
 
-    # Cargar todos los archivos PDF desde el directorio temporal
-    pdf_files = glob.glob("/tmp/*.pdf")
-    for pdf_file in pdf_files:
-        try:
-            loader = PyMuPDFLoader(pdf_file)
-            documents = loader.load()
-
-            # Fragmentar documentos en chunks más pequeños
-            text_splitter = RecursiveCharacterTextSplitter(chunk_size=1500, chunk_overlap=200)
+            # Fragmentar documentos en chunks
+            text_splitter = RecursiveCharacterTextSplitter(chunk_size=2000, chunk_overlap=500)
             chunks = text_splitter.split_documents(documents)
 
-            # Agregar los chunks al contexto
-            update_memory_context(chunks)
+            # Crear una nueva base de datos con los chunks
+            vectorstore = Chroma.from_documents(
+                documents=chunks,
+                embedding=embed_model,
+                persist_directory=persist_db,
+                collection_name=collection_name
+            )
+        else:
+            vectorstore = None
 
-        except Exception as e:
-            print(f"Error al procesar {pdf_file}: {str(e)}")
+    # Actualizar el retriever y la cadena QA si hay un vectorstore disponible
+    if vectorstore:
+        retriever = vectorstore.as_retriever(search_kwargs={'k': 5})
+        qa_chain = RetrievalQA.from_chain_type(
+            llm=llm,
+            chain_type="stuff",
+            retriever=retriever,
+            return_source_documents=False,
+            chain_type_kwargs={'prompt': prompt_template}
+        )
 
-# Función para generar embeddings de documentos
-def embed_documents(texts):
-    return embed_model.encode(texts, convert_to_tensor=True)
-
-# Función para obtener contexto relevante usando embeddings
-def get_relevant_context(query):
-    if not memory_context:
-        return "No tengo contexto disponible aún."
-
-    # Extraer contenido del contexto
-    texts = [doc.page_content for doc in memory_context]
-    embeddings = embed_documents(texts)
-
-    # Generar embedding para la consulta del usuario
-    query_embedding = embed_model.encode(query, convert_to_tensor=True)
-
-    # Calcular similitud coseno
-    similarities = cosine_similarity(query_embedding.cpu().numpy().reshape(1, -1), embeddings.cpu().numpy())[0]
-
-    # Encontrar los textos más relevantes (top 2 en vez de 3)
-    top_indices = np.argsort(similarities)[::-1][:2]  # Top 2 documentos más relevantes
-    relevant_texts = [texts[i] for i in top_indices]
-
-    return " ".join(relevant_texts)  # Concatenar los fragmentos más relevantes
-
-# Ruta para manejar la subida de archivos PDF y actualizar el contexto
+# Endpoint para subir archivos PDF
 @app.post("/upload/")
 async def upload_pdf(file: UploadFile = File(...)):
-    if file.content_type != "application/pdf":
-        raise HTTPException(status_code=400, detail="El archivo debe ser un PDF")
+    global vectorstore, retriever, qa_chain  # Declarar aquí también
+
+    if not file.filename.endswith(".pdf"):
+        raise HTTPException(status_code=400, detail="El archivo debe ser un PDF.")
+
+    file_path = os.path.join(pdf_directory, file.filename)
+    with open(file_path, "wb") as pdf_file:
+        shutil.copyfileobj(file.file, pdf_file)
+
+    # Procesar el nuevo archivo PDF y actualizar ChromaDB
+    loader = PyMuPDFLoader(file_path)
+    documents = loader.load()
     
-    try:
-        # Guardar el archivo temporalmente
-        file_path = f"/tmp/{file.filename}"
-        with open(file_path, "wb") as buffer:
-            shutil.copyfileobj(file.file, buffer)
+    text_splitter = RecursiveCharacterTextSplitter(chunk_size=2000, chunk_overlap=500)
+    chunks = text_splitter.split_documents(documents)
 
-        # Recargar el contexto desde todos los archivos PDF y reiniciar la IA
-        start_time = time.time()
-        load_context_from_pdfs()
-        end_time = time.time()
+    if vectorstore:
+        # Agregar nuevos documentos al vectorstore existente
+        vectorstore.add_documents(chunks)
+    else:
+        vectorstore = Chroma.from_documents(
+            documents=chunks,
+            embedding=embed_model,
+            persist_directory=persist_db,
+            collection_name=collection_name
+        )
 
-        processing_time = end_time - start_time
-        return JSONResponse(status_code=200, content={
-            "message": "PDF cargado y contexto actualizado.",
-            "processing_time": processing_time  # Devolver el tiempo de procesamiento
-        })
+    # Actualizar el retriever y la cadena QA
+    initialize_chroma_db()
 
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+    return JSONResponse(content={"message": "Archivo subido y procesado exitosamente."})
 
-
-# Ruta para eliminar un archivo PDF específico y su contexto asociado
+# Endpoint para borrar archivos PDF y su contexto en ChromaDB
 @app.post("/delete/")
 async def delete_pdf(doc_name: str):
+    global vectorstore, retriever, qa_chain  # Declarar aquí también
+
+    # Ruta completa del archivo PDF
+    file_path = os.path.join(pdf_directory, doc_name)
+
+    if not os.path.exists(file_path):
+        raise HTTPException(status_code=404, detail="Archivo no encontrado.")
+
+    # Eliminar el archivo físico
+    os.remove(file_path)
+    print(f"Archivo {doc_name} eliminado del sistema de archivos.")
+
+    # Reconstruir ChromaDB sin el archivo eliminado
+    pdf_files = glob.glob(os.path.join(pdf_directory, "*.pdf"))
+
+    if pdf_files:
+        documents = []
+        for pdf_file in pdf_files:
+            loader = PyMuPDFLoader(pdf_file)
+            documents.extend(loader.load())
+        
+        text_splitter = RecursiveCharacterTextSplitter(chunk_size=2000, chunk_overlap=500)
+        chunks = text_splitter.split_documents(documents)
+
+        # Actualizar el vectorstore
+        vectorstore = Chroma.from_documents(
+            documents=chunks,
+            embedding=embed_model,
+            persist_directory=persist_db,
+            collection_name=collection_name
+        )
+    else:
+        # Si no quedan archivos, limpiar el vectorstore
+        vectorstore = None
+
+    # Actualizar el retriever y la cadena QA
+    initialize_chroma_db()
+
+    return JSONResponse(content={"message": f"Archivo {doc_name} eliminado y ChromaDB actualizado exitosamente."})
+
+
+# Inicializar ChromaDB al arrancar el servidor
+initialize_chroma_db()
+
+# Generador para respuestas en streaming
+async def model_output_generator(full_prompt):
     try:
-        file_path = f"/tmp/{doc_name}"
-        if not os.path.exists(file_path):
-            raise HTTPException(status_code=404, detail="Archivo no encontrado")
-
-        os.remove(file_path)
-
-        # Recargar el contexto después de eliminar el archivo
-        load_context_from_pdfs()
-
-        return JSONResponse(status_code=200, content={"message": "Archivo y contexto eliminados."})
-
+        if qa_chain:
+            response = await qa_chain.ainvoke({"query": full_prompt})
+            for token in response['result'].split():
+                yield token.encode('utf-8') + b' '
+        else:
+            yield b"No hay un contexto disponible para responder la pregunta."
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=f"Error: {str(e)}")
 
-# Ruta para manejar las preguntas del usuario
+# Endpoint para realizar consultas al modelo
 @app.post("/query/")
 async def get_response(query: Query):
     full_prompt = query.input_text
+    return StreamingResponse(model_output_generator(full_prompt), media_type="text/plain")
 
-    # Obtener el contexto relevante
-    try:
-        start_time = time.time()
-        context_text = get_relevant_context(full_prompt)
-        end_time = time.time()
-
-        response_time = end_time - start_time
-        return JSONResponse(content=context_text.strip(), status_code=200)
-
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-# Cargar el contexto y reiniciar la IA cuando se inicia el servidor
-@app.on_event("startup")
-async def on_startup():
-    print("Cargando contexto desde archivos PDF...")
-    load_context_from_pdfs()
-"""
