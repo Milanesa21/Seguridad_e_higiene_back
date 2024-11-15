@@ -5,6 +5,7 @@ from routers.auth_router import auth_router
 from fastapi.middleware.cors import CORSMiddleware
 import init_db
 from services.Jorgito import app as jorgito_app
+from services.Jorgito2 import app as jorgito_app2
 from controllers.socket_controllers import router as socket_router  
 from services.roles_permisos_asignacion import Db_insert_RP
 from routers.permiso_router import permiso_router
@@ -38,6 +39,7 @@ app.add_middleware(
 app.include_router(user_routes)
 app.include_router(auth_router)
 app.mount("/jorgito", jorgito_app)
+app.mount("/jorgito2", jorgito_app2)
 app.include_router(company_rutes)
 app.include_router(socket_router)  
 app.include_router(permiso_router)
