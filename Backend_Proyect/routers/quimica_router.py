@@ -1,8 +1,7 @@
 from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.orm import Session
 from dataBase.db import get_db
-from model.Quimica_model import Quimica, QuimicaCreate, QuimicaResponse
-from typing import List
+from model.Quimica_model import Quimica, QuimicaCreate
 from datetime import datetime
 from sqlalchemy import func
 
@@ -10,21 +9,20 @@ quimica_router = APIRouter(prefix='/Quimica', tags=['Quimica'])
 
 
 
-@quimica_router.post('/create/', response_model=QuimicaResponse)
-async def create_inspeccion(
-    checklist_data: dict,
-    id_empresa: int,
+@quimica_router.post('/guardar_checklist')
+async def guardar_checklist(
+    data: QuimicaCreate,
     db: Session = Depends(get_db)
 ):
     try:
-        db_inspeccion = Quimica(**checklist_data, fecha=datetime.now(), id_empresa=id_empresa)
-        db.add(db_inspeccion)
+        nuevo_registro = Quimica(**data.dict(), fecha=datetime.utcnow())
+        db.add(nuevo_registro)
         db.commit()
-        db.refresh(db_inspeccion)
-        return db_inspeccion
+        db.refresh(nuevo_registro)
+        return {"mensaje": "Checklist guardado exitosamente", "data": nuevo_registro}
     except Exception as e:
-        print(f"Error: {e}")
-        raise HTTPException(status_code=500, detail="Error al crear la inspección")
+        print(f"Error al guardar el checklist: {e}")
+        raise HTTPException(status_code=500, detail="Error al guardar el checklist")
 
 
 @quimica_router.get('/estadisticas/{id_empresa}')
@@ -50,6 +48,7 @@ async def get_estadisticas(
     except Exception as e:
         print(f"Error: {e}")
         raise HTTPException(status_code=500, detail="Error al obtener las estadísticas")
+
 
 @quimica_router.get('/estadisticas_por_seccion/{id_empresa}')
 async def get_estadisticas_por_seccion(

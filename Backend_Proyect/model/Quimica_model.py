@@ -1,4 +1,3 @@
-# Quimica_model.py
 from sqlalchemy import Column, Integer, Boolean, DateTime, ForeignKey
 from sqlalchemy.orm import relationship
 from dataBase.db import Base
@@ -55,11 +54,11 @@ class QuimicaCreate(BaseModel):
     residuosAlmacenadosCorrectamente: bool
     residuosEliminadosFrecuentemente: bool
     procedimientosEliminacionCorrectos: bool
+    id_empresa: int  # Añadido id_empresa aquí
 
 class QuimicaResponse(QuimicaCreate):
     id: int
     fecha: datetime
-    id_empresa: int
 
     class Config:
         orm_mode = True
