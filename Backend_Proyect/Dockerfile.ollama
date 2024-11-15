@@ -1,0 +1,16 @@
+# Usa una imagen base mínima que soporte Python y curl
+FROM python:3.9-slim
+
+# Instala curl y otras dependencias necesarias
+RUN apt-get update && apt-get install -y \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Ejecuta el script de instalación de Ollama Serve
+RUN curl -fsSL https://ollama.com/install.sh | sh
+
+# Exponer el puerto que utilizará Ollama Serve
+EXPOSE 11434
+
+# Comando para iniciar el servicio de Ollama (sin --host)
+CMD ["ollama", "serve"]

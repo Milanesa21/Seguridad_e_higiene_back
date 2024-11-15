@@ -1,32 +1,30 @@
-from jwt import encode, decode, exceptions
+import jwt
+from jwt import exceptions
 from datetime import datetime, timedelta
 from os import getenv
 
-
-def exp_time(days: int=0, minutes: int = 0):
+def exp_time(days: int = 0, minutes: int = 0):
     date = datetime.now()
-    new_date = date + timedelta(days)
+    new_date = date + timedelta(days=days, minutes=minutes)
     return new_date
 
 def write_token(data: dict):
-    token = encode(payload={**data, 'exp': exp_time(1)}, key=getenv('SECRET_KEY'), algorithm='HS256')
+    token = jwt.encode(payload={**data, 'exp': exp_time(1)}, key=getenv('SECRET_KEY'), algorithm='HS256')
     return token
-
 
 def validate_token(token: str, output: bool = False):
     try:
         if output:
-            token_response = decode(token, getenv('SECRET_KEY'), algorithms=['HS256'])
-            print('la variable',token_response)
+            token_response = jwt.decode(token, getenv('SECRET_KEY'), algorithms=['HS256'])
+            print('la variable', token_response)
             return token_response
     except exceptions.DecodeError:
         return {'message': 'Invalid token', 'status_code': 401}
     except exceptions.ExpiredSignatureError:
         return {'message': 'Expired token', 'status_code': 401}
-    
 
 def generate_reset_token(email: str):
-    token = encode(
+    token = jwt.encode(
         payload={
             'sub': email, 
             'exp': exp_time(minutes=15)  # Token válido por 15 minutos
