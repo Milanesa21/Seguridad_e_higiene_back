@@ -32,7 +32,7 @@ class Construccion(Base):
     equipoManipulacionDisponible = Column(Boolean)
     ventilacionAdecuada = Column(Boolean)
 
-    id_empresa = Column(Integer, ForeignKey("companies.id_empresa"))
+    id_empresa = Column(Integer, ForeignKey("companies.id_empresa"), default=0)
     company = relationship("Company", back_populates="inspecciones_construccion")
 
 

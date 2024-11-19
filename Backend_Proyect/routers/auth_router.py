@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Header, HTTPException, status
-from services.jwt import validate_token
+from services.service_jwt import validate_token
 
 
 

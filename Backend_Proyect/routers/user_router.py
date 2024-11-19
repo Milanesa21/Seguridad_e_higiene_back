@@ -7,7 +7,7 @@ from controllers.auth_users import (
     change_password, change_job_position, get_user_by_id, get_user_email,
     change_name, get_user_by_name, change_email,get_all_users, get_all_user_by_id_empresa, get_all_user_by_puesto_trabajo
 )
-from services.jwt import write_token
+from services.service_jwt import write_token
 from services.email_service import send_email
 from dataBase.db import get_db
 from model.schemas.user_schemas import UserCreate, CreateUsersRequest, LoginRequest, UpdateUserRequest

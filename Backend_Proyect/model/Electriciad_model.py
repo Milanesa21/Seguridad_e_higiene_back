@@ -6,7 +6,7 @@ from pydantic import BaseModel
 from datetime import datetime
 
 class Electricidad(Base):
-    __tablename__ = "inspecciones Electricidad"
+    __tablename__ = "inspeccionesElectricidad"
 
     id = Column(Integer, primary_key=True, index=True)
     fecha = Column(DateTime)
@@ -29,7 +29,7 @@ class Electricidad(Base):
     herramientasEnBuenEstado = Column(Boolean)
     equipoPruebasCalibrado = Column(Boolean)
 
-    id_empresa = Column(Integer, ForeignKey("companies.id_empresa"))
+    id_empresa = Column(Integer, ForeignKey("companies.id_empresa"), default=0)
     company = relationship("Company", back_populates="inspecciones_electricidad")
 
 class ElectricidadCreate(BaseModel):

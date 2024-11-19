@@ -3,15 +3,17 @@ from sqlalchemy.orm import Session
 from dataBase.db import get_db
 from model.Construccion_model import Construccion, ConstruccionCreate
 from datetime import datetime
-from sqlalchemy import func
+from sqlalchemy import func, cast, Integer
 
 construccion_router = APIRouter(prefix='/Construccion', tags=['Construccion'])
 
 
 @construccion_router.post('/guardar_checklist')
-async def guardar_checklist(data: ConstruccionCreate, db: Session = Depends(get_db)):
+async def guardar_checklist(data: ConstruccionCreate,
+                            id_empresa: int,
+                            db: Session = Depends(get_db)):
     try:
-        nuevo_registro = Construccion(**data.dict(), fecha=datetime.utcnow())
+        nuevo_registro = Construccion(**data.dict(), fecha=datetime.now(), id_empresa=id_empresa)
         db.add(nuevo_registro)
         db.commit()
         db.refresh(nuevo_registro)
@@ -38,7 +40,7 @@ async def get_estadisticas(
         
         estadisticas = {}
         for campo in campos:
-            result = db.query(func.avg(getattr(Construccion, campo))).filter(Construccion.id_empresa == id_empresa).scalar()
+            result = db.query(func.avg(cast(getattr(Construccion, campo), Integer))).filter(Construccion.id_empresa == id_empresa).scalar()
             estadisticas[campo] = float(result) if result is not None else 0.0
         
         return estadisticas
@@ -64,7 +66,7 @@ async def get_estadisticas_por_seccion(
         
         resultados = {}
         for seccion, campos in secciones.items():
-            promedios = db.query(*(func.avg(getattr(Construccion, campo)).label(campo) for campo in campos)) \
+            promedios = db.query(*(func.avg(cast(getattr(Construccion, campo),Integer)).label(campo) for campo in campos)) \
                             .filter(Construccion.id_empresa == id_empresa) \
                             .first()
             resultados[seccion] = {campo: float(getattr(promedios, campo) or 0) for campo in campos}

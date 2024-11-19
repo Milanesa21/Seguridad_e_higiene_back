@@ -30,7 +30,7 @@ class Quimica(Base):
     residuosEliminadosFrecuentemente = Column(Boolean)
     procedimientosEliminacionCorrectos = Column(Boolean)
 
-    id_empresa = Column(Integer, ForeignKey("companies.id_empresa"))
+    id_empresa = Column(Integer, ForeignKey("companies.id_empresa"),default=0)
     company = relationship("Company", back_populates="inspecciones_quimica")
 
 class QuimicaCreate(BaseModel):
@@ -54,7 +54,6 @@ class QuimicaCreate(BaseModel):
     residuosAlmacenadosCorrectamente: bool
     residuosEliminadosFrecuentemente: bool
     procedimientosEliminacionCorrectos: bool
-    id_empresa: int  # Añadido id_empresa aquí
 
 class QuimicaResponse(QuimicaCreate):
     id: int

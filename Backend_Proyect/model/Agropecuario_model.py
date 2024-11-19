@@ -5,7 +5,7 @@ from pydantic import BaseModel
 from datetime import datetime
 
 class Agropecuario(Base):
-    __tablename__ = "inspecciones Agropecuario"
+    __tablename__ = 'inspeccionesAgropecuario'
 
     id = Column(Integer, primary_key=True, index=True)
     fecha = Column(DateTime)
@@ -31,7 +31,7 @@ class Agropecuario(Base):
     energiaRenovable = Column(Boolean)
 
     # Clave foránea para la relación con la tabla de empresas
-    id_empresa = Column(Integer, ForeignKey("companies.id_empresa"))
+    id_empresa = Column(Integer, ForeignKey("companies.id_empresa"), default=0)
 
 
 # Relación uno a muchos con la tabla de empresas

@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, exceptions, status
 from sqlalchemy.orm import Session
 from dataBase.db import get_db
 from controllers.auth_users import get_user_email
-from services.jwt import generate_reset_token, validate_token
+from services.service_jwt import generate_reset_token, validate_token
 from services.email_service import send_email
 from controllers.auth_users import change_password
 
