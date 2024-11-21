@@ -3,8 +3,9 @@ from sqlalchemy.orm import Session
 from dataBase.db import get_db
 from controllers.auth_users import get_user_email
 from services.service_jwt import generate_reset_token, validate_token
-from services.email_service import send_email
+from services.email_service import send_email, send_create_company
 from controllers.auth_users import change_password
+from model.schemas.email_schemas import CreateNewCompany
 
 email_routes = APIRouter(prefix='/email', tags=['Email'])
 
@@ -24,6 +25,22 @@ async def email_recuperacion(email: str, db: Session = Depends(get_db)):
                             detail=f"Failed to send recovery email: {e}")
 
     return {"message": "Correo de recuperación enviado exitosamente"}
+
+@email_routes.post('/')
+async def create_new_company(request: CreateNewCompany):
+    data = {
+        'nombre_empresa': request.empresa,
+        'nombre_dueno': request.dueno,
+        'email': request.email,
+        'telefono': request.telefono
+    }
+    try:
+        send_create_company(data)
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                            detail=f"Failed to send company registration email: {e}")
+    return {"message": "Correo de registro de empresa enviado exitosamente"}
+
 
 # Ruta para restablecer la contraseña
 @email_routes.post('/resetPassword/{token}')
