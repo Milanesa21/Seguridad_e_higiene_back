@@ -34,3 +34,7 @@ class User(UserBase):
 
 class DBUser(User):
     password: str
+
+
+class ChangePasswordRequest(BaseModel):
+    new_password: str

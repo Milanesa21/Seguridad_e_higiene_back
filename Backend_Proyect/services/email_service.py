@@ -6,10 +6,10 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-def send_email(email, full_name, temporal_token):
+def send_email(email, id, full_name, temporal_token):
     # Construye la URL de restablecimiento de contraseña
     frontend_url = os.getenv("FRONTEND_URL", "http://localhost:5173")
-    link = f"{frontend_url}/PasswordChange/{temporal_token}"
+    link = f"{frontend_url}/PasswordChange/{id}/{temporal_token}"
 
     # HTML y texto en formato seguro
     html_content = f"""
@@ -50,6 +50,7 @@ def send_email(email, full_name, temporal_token):
             server.login(os.getenv('EMAIL_SENDER'), os.getenv('EMAIL_PASSWORD'))
             server.sendmail(os.getenv('EMAIL_SENDER'), email, msg.as_string())
         print(f"Correo de recuperación enviado a: {email}")
+        print(id)
     except smtplib.SMTPAuthenticationError:
         print("Error de autenticación: verifique las credenciales del correo.")
     except smtplib.SMTPConnectError:

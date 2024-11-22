@@ -116,6 +116,7 @@ def delete_user(full_name:str, email: str, puesto_trabajo: str, db: Session):
 
 def change_password(id: int, new_password: str, db: Session):
     user = db.query(Users).filter(Users.id == id).first()
+    print(user)
     if user:
         user.password = hash_password(new_password)
         db.commit()

@@ -2,6 +2,9 @@ from jwt import encode, decode, exceptions
 from datetime import datetime, timedelta
 from os import getenv
 
+from sqlalchemy.orm import Session
+from model.email_recuperacion_model import Token
+
 
 def exp_time(days: int=0, minutes: int = 0):
     date = datetime.now()
@@ -35,3 +38,14 @@ def generate_reset_token(email: str):
         algorithm='HS256'
     )
     return token
+
+def validate_token_temporal(token: str, db: Session):
+    try:
+        exist_token = db.query(Token).filter(Token.Token == token).first()
+        if not exist_token:
+            return {'message': 'Invalid token', 'status_code': 401}
+        if exist_token.expiration_time < datetime.utcnow():
+            return {'message': 'Expired token', 'status_code': 401}
+        return {'message': 'Token valido', 'status_code': 200}
+    except exceptions.DecodeError:
+        return {'message': 'Invalid token', 'status_code': 401}

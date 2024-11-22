@@ -10,7 +10,7 @@ from controllers.auth_users import (
 from services.service_jwt import write_token
 from services.email_service import send_email
 from dataBase.db import get_db
-from model.schemas.user_schemas import UserCreate, CreateUsersRequest, LoginRequest, UpdateUserRequest
+from model.schemas.user_schemas import ChangePasswordRequest, UserCreate, CreateUsersRequest, LoginRequest, UpdateUserRequest
 from model.alert_message import AlertMessage
 from model.schemas.alert_message_schemas import AlertMessageRequest
 
@@ -176,8 +176,8 @@ async def send_email_route(full_name: str, db: Session = Depends(get_db)):
 
 # Ruta para cambiar la contraseña de un usuario
 @user_routes.patch('/user/changePassword/{id}')
-async def change_password_route(id: int, new_password: str, db: Session = Depends(get_db)):
-    if not change_password(id, new_password, db):
+async def change_password_route(id: int, request: ChangePasswordRequest, db: Session = Depends(get_db)):
+    if not change_password(id, request.new_password, db):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Failed to change password")
     return {"message": "Contraseña cambiada exitosamente"}
 

@@ -1,5 +1,7 @@
-from fastapi import APIRouter, Header, HTTPException, status
-from services.service_jwt import validate_token
+from fastapi import APIRouter, Depends, Header, HTTPException, status
+from requests import Session
+from services.service_jwt import validate_token_temporal,validate_token
+from dataBase.db import get_db
 
 
 
@@ -32,3 +34,14 @@ async def validate_token_route_empresa(Authorization: str = Header(None)):
     if isinstance(Authorization_response, dict) and 'status_code' in Authorization_response:
         raise HTTPException(status_code=Authorization_response['status_code'], detail=Authorization_response['message'])
     return {"message": "Token valido", "Empresa": Authorization_response}
+
+
+
+@auth_router.post('/validate/')
+async def token_temporal(token: str, db: Session = Depends(get_db)):
+    print('aaaaaa',token)
+    try:
+        data = validate_token_temporal(token, db)
+        return data
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Error: {e}")

@@ -6,6 +6,7 @@ from services.service_jwt import generate_reset_token, validate_token
 from services.email_service import send_email, send_create_company
 from controllers.auth_users import change_password
 from model.schemas.email_schemas import CreateNewCompany
+from controllers.token_controllers import temooral_token
 
 email_routes = APIRouter(prefix='/email', tags=['Email'])
 
@@ -14,12 +15,12 @@ async def email_recuperacion(email: str, db: Session = Depends(get_db)):
     user = get_user_email(email, db)
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
-
-    temporal_token = generate_reset_token(email)
-
+    token = temooral_token(email, db)
+    if not token:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Failed to generate token")
     # Intenta enviar el correo y maneja cualquier error
     try:
-        send_email(email=email, full_name=user.full_name, temporal_token=temporal_token)
+        send_email(email=email,id=user.id, full_name=user.full_name, temporal_token=token.Token)
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                             detail=f"Failed to send recovery email: {e}")
