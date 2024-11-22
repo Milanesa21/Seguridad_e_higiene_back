@@ -43,6 +43,7 @@ async def create_new_company(request: CreateNewCompany):
     return {"message": "Correo de registro de empresa enviado exitosamente"}
 
 
+
 # Ruta para restablecer la contraseña
 @email_routes.post('/resetPassword/{token}')
 async def reset_password(token: str, new_password: str, db: Session = Depends(get_db)):

@@ -181,6 +181,7 @@ async def change_password_route(id: int, request: ChangePasswordRequest, db: Ses
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Failed to change password")
     return {"message": "Contraseña cambiada exitosamente"}
 
+
 # Ruta para cambiar el puesto de trabajo de un usuario
 @user_routes.patch('/user/changeJobPosition/{id}')
 async def change_job_position_route(id: int, new_position: str, db: Session = Depends(get_db)):
