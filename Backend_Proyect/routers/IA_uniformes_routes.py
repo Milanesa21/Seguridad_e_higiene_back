@@ -1,4 +1,4 @@
-"""from fastapi import APIRouter, File, UploadFile
+from fastapi import APIRouter, File, UploadFile
 from fastapi.responses import JSONResponse
 import tensorflow as tf
 from tensorflow.keras.preprocessing import image
@@ -36,4 +36,4 @@ async def predict_image(file: UploadFile = File(...)):
         return JSONResponse(content={"message": result})
 
     except Exception as e:
-        return JSONResponse(content={"message": str(e)}, status_code=500)"""
+        return JSONResponse(content={"message": str(e)}, status_code=500)
