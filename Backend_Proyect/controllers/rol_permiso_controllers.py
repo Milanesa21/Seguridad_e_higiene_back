@@ -137,7 +137,12 @@ def quitar_permiso_al_rol(id_user: int, id_permisos: int, db: Session):
         return {'message': 'Unexpected error occurred', 'status_code': 500}
 
 def get_all_permisos(db: Session):
-    return db.query(Permisos).all()
+    permisos = db.query(Permisos).all()
+    
+    permisos_filtrados = permisos[3:]  
+    
+    return permisos_filtrados
+
 
 def crear_super_admin(db: Session):
     user = db.query(Users).filter(Users.id_role == 1).first()

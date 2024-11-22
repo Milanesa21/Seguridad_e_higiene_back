@@ -4,7 +4,7 @@ from controllers.company_controllers import create_company, get_company_by_id, u
 from controllers.auth_users import get_user_by_id
 from model.schemas.company_schemas import CompanyCreate, CompanyRequest, CompanyUpdate, CompanyResponse
 from dataBase.db import get_db
-from services.jwt import write_token
+from services.service_jwt import write_token
 
 # Definición del APIRouter con prefijo y etiquetas
 company_rutes = APIRouter(prefix='/empresas', tags=['CRUD de Empresas'])
@@ -38,7 +38,6 @@ def registrar_empresa(company_data: CompanyCreate, db: Session = Depends(get_db)
 
 @company_rutes.get("/empresa/{id}", response_model=CompanyResponse)
 def obtener_empresa(id: int, db: Session = Depends(get_db)):
-    print('AAAAA',id)
     company = get_company_by_id(id, db)
     if not company:
         raise HTTPException(status_code=404, detail="Empresa no encontrada.")

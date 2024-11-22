@@ -5,7 +5,7 @@ from model.Agropecuario_model import Agropecuario as Inspeccion
 from model.Agropecuario_model import InspeccionCreate, InspeccionResponse
 from typing import List
 from datetime import datetime
-from sqlalchemy import func
+from sqlalchemy import func, cast, Integer
 
 inspeccion_router = APIRouter(prefix='/Agropecuario', tags=['Agropecuario'])
 
@@ -21,6 +21,7 @@ async def create_inspeccion(
         db.add(db_inspeccion)
         db.commit()
         db.refresh(db_inspeccion)
+        print(db_inspeccion)
         return db_inspeccion
     except Exception as e:
         print(f"Error: {e}")
@@ -73,13 +74,14 @@ async def get_estadisticas(
         
         estadisticas = {}
         for campo in campos:
-            result = db.query(func.avg(getattr(Inspeccion, campo))).filter(Inspeccion.id_empresa == id_empresa).scalar()
+            result = db.query(func.avg(cast(getattr(Inspeccion, campo), Integer))) \
+            .filter(Inspeccion.id_empresa == id_empresa).scalar()
             estadisticas[campo] = float(result) if result is not None else 0.0
         
         return estadisticas
     except Exception as e:
         print(f"Error: {e}")
-        raise HTTPException(status_code=500, detail="Error al obtener las estadísticas")
+        raise HTTPException(status_code=500, detail=f"Error al obtener las estadísticas: {str(e)}")
 
 @inspeccion_router.get('/estadisticas_por_seccion/{id_empresa}')
 async def get_estadisticas_por_seccion(
@@ -97,9 +99,8 @@ async def get_estadisticas_por_seccion(
         
         resultados = {}
         for seccion, campos in secciones.items():
-            promedios = db.query(*(func.avg(getattr(Inspeccion, campo)).label(campo) for campo in campos)) \
-                            .filter(Inspeccion.id_empresa == id_empresa) \
-                            .first()
+            promedios = db.query(*(func.avg(cast(getattr(Inspeccion, campo), Integer)).label(campo) for campo in campos)) \
+                            .filter(Inspeccion.id_empresa == id_empresa).first()
             resultados[seccion] = {campo: float(getattr(promedios, campo) or 0) for campo in campos}
         
         return resultados

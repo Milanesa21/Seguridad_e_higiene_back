@@ -64,7 +64,35 @@ def get_user_by_id(id: int, db: Session):
         return {"detail": f"Error: {e}"}
 
 def get_all_user_by_id_empresa(id_empresa: int, db: Session):
-    return db.query(Users).filter(Users.id_empresa == id_empresa).all()
+    try:
+        users = db.query(Users).filter(Users.id_empresa == id_empresa).all()
+        result = []
+
+        if not users:
+            return {"message": "No users found for this company"}
+
+        for user in users:
+            user_permisos = db.query(Permisos).join(User_Permiso).filter(User_Permiso.id_user == user.id).all()
+            user_permisos = [permiso.nombre_permiso for permiso in user_permisos]
+
+            result.append({
+                "id": user.id,
+                "full_name": user.full_name,
+                "puesto_trabajo": user.puesto_trabajo,
+                "email": user.email,
+                'empresa_id': user.id_empresa,
+                "rol": {
+                    "id": user.rol.id if user.rol else None,
+                    "nombre": user.rol.nombre_rol if user.rol else None,
+                    "permisos": user_permisos
+                }
+            })
+
+        return result
+
+    except Exception as e:
+        return {"error": str(e)}
+
 
 def get_all_user_by_name(full_name: str, db: Session):
     return db.query(Users).filter(Users.full_name == full_name).all()
@@ -141,6 +169,7 @@ def get_all_users(db: Session):
                 "full_name": user.full_name,
                 "puesto_trabajo": user.puesto_trabajo,
                 "email": user.email,
+                'empresa_id': user.id_empresa,
                 "rol": {
                     "id": user.rol.id if user.rol else None,
                     "nombre": user.rol.nombre_rol if user.rol else None,

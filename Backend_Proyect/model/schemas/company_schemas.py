@@ -1,4 +1,5 @@
 from pydantic import BaseModel, Field, EmailStr
+from typing import Optional
 
 class CompanyBase(BaseModel):
     nombre_empresa: str = Field(..., min_length=1, max_length=100)
@@ -16,6 +17,11 @@ class CompanyUpdate(CompanyBase):
 
 class CompanyResponse(CompanyBase):
     id_empresa: int
+    id_role: Optional[int]
+
+    class config:
+        orm_mode = True
+        from_attributes = True
 
     class Config:
         orm_mode = True

@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  ollama:
+    build:
+      context: .
+      dockerfile: Dockerfile.ollama
+    ports:
+      - "11434:11434"  # Exponer el puerto 11434
+    networks:
+      - app-network  # Red personalizada
+
+networks:
+  app-network:
+    external: true  # Red externa, asegúrate de que la red exista

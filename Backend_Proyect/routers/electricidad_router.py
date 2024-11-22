@@ -4,7 +4,7 @@ from dataBase.db import get_db
 from model.Electriciad_model import Electricidad, ElectricidadCreate, ElectricidadResponse
 from typing import List
 from datetime import datetime
-from sqlalchemy import func
+from sqlalchemy import func, cast,Integer
 
 electricidad_router = APIRouter(prefix='/Electricidad', tags=['Electricidad'])
 
@@ -56,7 +56,7 @@ async def get_estadisticas(
         
         estadisticas = {}
         for campo in campos:
-            result = db.query(func.avg(getattr(Electricidad, campo))).filter(Electricidad.id_empresa == id_empresa).scalar()
+            result = db.query(func.avg(cast(getattr(Electricidad, campo),Integer))).filter(Electricidad.id_empresa == id_empresa).scalar()
             estadisticas[campo] = float(result) if result is not None else 0.0
         
         return estadisticas
@@ -81,7 +81,7 @@ async def get_estadisticas_por_seccion(
         
         resultados = {}
         for seccion, campos in secciones.items():
-            promedios = db.query(*(func.avg(getattr(Electricidad, campo)).label(campo) for campo in campos)) \
+            promedios = db.query(*(func.avg(cast(getattr(Electricidad, campo),Integer)).label(campo) for campo in campos)) \
                             .filter(Electricidad.id_empresa == id_empresa) \
                             .first()
             resultados[seccion] = {campo: float(getattr(promedios, campo) or 0) for campo in campos}
