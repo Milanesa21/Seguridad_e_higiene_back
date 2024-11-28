@@ -144,6 +144,48 @@ def get_all_permisos(db: Session):
     return permisos_filtrados
 
 
+def cambiar_rol(id_user: int, id_rol: int, db: Session):
+    try:
+        # Buscar al usuario
+        user = db.query(Users).filter(Users.id == id_user).first()
+        if not user:
+            return {"detail": "User not found"}
+
+        # Buscar el rol
+        rol = db.query(Rol).filter(Rol.id == id_rol).first()
+        if not rol:
+            return {"detail": "Role not found"}
+
+
+        # Eliminar permisos actuales asociados al usuario
+        db.query(User_Permiso).filter(User_Permiso.id_user == id_user).delete()
+
+        # Obtener los permisos asociados al nuevo rol
+        permisos_nuevo_rol = db.query(Rol_permiso).filter(Rol_permiso.id_rol == id_rol).all()
+
+        # Asignar los permisos del nuevo rol al usuario
+        nuevos_permisos_usuario = [
+            User_Permiso(id_user=id_user, id_permiso=permiso.id_permiso) 
+            for permiso in permisos_nuevo_rol
+        ]
+        db.add_all(nuevos_permisos_usuario)
+
+        # Cambiar el rol del usuario
+        user.id_role = id_rol
+        db.commit()
+
+        return {"message": "Role changed and permissions synchronized successfully"}
+    except Exception as e:
+        db.rollback()
+        print(f"Error changing role: {e}")
+        return {'message': 'Error changing role', 'status_code': 401}
+
+
+def get_all_roles(db: Session):
+    roles = db.query(Rol).all()
+    role_filtered = roles[1:]
+    return role_filtered
+
 def crear_super_admin(db: Session):
     user = db.query(Users).filter(Users.id_role == 1).first()
 

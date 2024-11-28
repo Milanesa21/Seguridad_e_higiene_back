@@ -1,8 +1,9 @@
 from fastapi import APIRouter, Depends
-from controllers.rol_permiso_controllers import agregar_permiso_al_rol, quitar_permiso_al_rol, get_all_permisos
+from controllers.rol_permiso_controllers import agregar_permiso_al_rol, quitar_permiso_al_rol, get_all_permisos, cambiar_rol, get_all_roles
 from dataBase.db import get_db
 from sqlalchemy.orm import Session
 from model.schemas.permisos_schemas import PermisoRequest
+from model.schemas.rol_schemas import RolRequest
 
 permiso_router = APIRouter(prefix='/permiso', tags=['Permisos'])
 
@@ -22,3 +23,14 @@ async def remove_permission_from_role(request: PermisoRequest, db: Session = Dep
 @permiso_router.get('/role/getPermissions')
 async def get_all_permissions(db: Session = Depends(get_db)):
     return get_all_permisos(db)
+
+@permiso_router.patch('/role/changeRole')
+async def change_role(request: RolRequest, db: Session = Depends(get_db)):
+    id_user = request.id_user
+    id_rol = request.id_rol
+    return cambiar_rol(id_user, id_rol, db)
+
+
+@permiso_router.get('/role/')
+async def get_roles(db: Session = Depends(get_db)):
+    return get_all_roles(db)
