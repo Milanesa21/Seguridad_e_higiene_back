@@ -5,13 +5,14 @@ from controllers.auth_users import get_user_email
 from services.service_jwt import generate_reset_token, validate_token
 from services.email_service import send_email, send_create_company
 from controllers.auth_users import change_password
-from model.schemas.email_schemas import CreateNewCompany
+from model.schemas.email_schemas import CreateNewCompany, EmailSchema
 from controllers.token_controllers import temooral_token
 
 email_routes = APIRouter(prefix='/email', tags=['Email'])
 
 @email_routes.post('/reperacion/')
-async def email_recuperacion(email: str, db: Session = Depends(get_db)):
+async def email_recuperacion(request: EmailSchema, db: Session = Depends(get_db)):
+    email = request.email
     user = get_user_email(email, db)
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")

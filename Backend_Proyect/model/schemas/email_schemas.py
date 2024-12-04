@@ -7,3 +7,6 @@ class CreateNewCompany(BaseModel):
     dueno: str
     email: str
     telefono: str
+
+class EmailSchema(BaseModel):
+    email: str
