@@ -30,4 +30,6 @@ class Company(Base):
     inspecciones_electricidad: Mapped[List[Electricidad]] = relationship("Electricidad", back_populates="company")
     inspecciones_construccion: Mapped[List[Construccion]] = relationship("Construccion", back_populates="company")
 
+    tasks = relationship("Task", back_populates="company") 
+
     rol = relationship("Rol", back_populates="companies")

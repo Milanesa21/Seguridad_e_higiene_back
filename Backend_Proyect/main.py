@@ -18,6 +18,7 @@ from routers.construccion_router import construccion_router
 from routers.electricidad_router import electricidad_router
 from routers.quimica_router import quimica_router
 from routers.pdf_files import router as pdf_router
+from routers.task_router import task_router
 
 
 #Para iniciar el proyecto: uvicorn main:app --reload
@@ -51,6 +52,7 @@ app.include_router(construccion_router)
 app.include_router(electricidad_router)
 app.include_router(quimica_router)
 app.include_router(pdf_router)
+app.include_router(task_router)
 
 
 

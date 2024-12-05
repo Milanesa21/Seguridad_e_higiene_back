@@ -8,6 +8,7 @@ from model.roles_permisos import Rol_permiso
 from model.user_permiso import User_Permiso
 from model.cloudinary_model import File
 from model.email_recuperacion_model import Token
+from model.task import Task
 
 try:
     Base.metadata.create_all(engine, checkfirst=True)
